@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Transactions – Trackflow</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+      .filter-bar {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 16px 20px;
+        margin-bottom: 24px;
+      }
+      .filter-bar .input-field {
+        margin: 0;
+        padding: 12px 16px;
+        font-size: 0.85rem;
+      }
+      .filter-bar .input-field.has-icon {
+        padding-left: 44px;
+      }
+      .filter-bar .input-group {
+        margin: 0;
+        flex: 1;
+        min-width: 140px;
+      }
+
+      .txn-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .txn-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 16px 20px;
+        border-radius: var(--radius-lg);
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        transition: var(--transition);
+        cursor: default;
+      }
+      .txn-card:hover {
+        background: var(--bg-card-hover);
+        border-color: var(--border-hover);
+      }
+
+      .txn-emoji {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.06);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        flex-shrink: 0;
+      }
+      .txn-body {
+        flex: 1;
+        min-width: 0;
+      }
+      .txn-name {
+        font-size: 0.9rem;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .txn-meta {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: 3px;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .txn-meta .dot {
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background: var(--text-muted);
+      }
+      .txn-right {
+        text-align: right;
+        flex-shrink: 0;
+      }
+      .txn-amt {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 1rem;
+        font-weight: 700;
+      }
+      .txn-amt.expense {
+        color: var(--accent-2);
+      }
+      .txn-amt.income {
+        color: var(--accent-3);
+      }
+      .txn-date-label {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        margin-top: 2px;
+      }
+      .txn-del {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: rgba(255, 107, 107, 0.1);
+        border: none;
+        color: var(--accent-2);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        transition: var(--transition);
+        flex-shrink: 0;
+      }
+      .txn-del:hover {
+        background: rgba(255, 107, 107, 0.25);
+        transform: scale(1.1);
+      }
+
+      .date-group-label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        padding: 16px 4px 8px;
+      }
+      .date-group-label:first-child {
+        padding-top: 0;
+      }
+
+      .summary-chips {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+      .sum-chip {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 20px;
+        border-radius: var(--radius-lg);
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        flex: 1;
+        min-width: 120px;
+      }
+      .sum-chip-icon {
+        font-size: 1.2rem;
+      }
+      .sum-chip-val {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 1.1rem;
+        font-weight: 700;
+      }
+      .sum-chip-lbl {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+      }
+
+      #txn-count {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+      }
+      @media (max-width: 600px) {
+        .txn-card {
+          padding: 12px 14px;
+        }
+        .filter-bar {
+          flex-direction: column;
+          gap: 10px;
+          padding: 14px;
+        }
+        .filter-bar .input-group {
+          width: 100%;
+          min-width: 0;
+        }
+        .summary-chips {
+          flex-direction: column;
+        }
+      }
+    </style>
+    <link rel="prefetch" href="dashboard.html" />
+    <link rel="prefetch" href="transactions.html" />
+    <link rel="prefetch" href="add-expense.html" />
+    <link rel="prefetch" href="budget.html" />
+    <link rel="prefetch" href="savings.html" />
+    <link rel="prefetch" href="analytics.html" />
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-icon"><i class="fa-solid fa-chart-pie"></i></div>
+          <span class="brand-name">Trackflow</span>
+        </div>
+        <nav class="sidebar-nav">
+          <div class="nav-section-title">Main</div>
+          <a href="dashboard.html" class="nav-item" data-page="dashboard.html">
+            <span class="nav-icon"><i class="fa-solid fa-gauge-high"></i></span
+            >Dashboard</a
+          >
+          <a
+            href="add-expense.html"
+            class="nav-item"
+            data-page="add-expense.html"
+          >
+            <span class="nav-icon"><i class="fa-solid fa-plus-circle"></i></span
+            >Add Expense</a
+          >
+          <a
+            href="transactions.html"
+            class="nav-item"
+            data-page="transactions.html"
+          >
+            <span class="nav-icon"><i class="fa-solid fa-list-ul"></i></span
+            >Transactions</a
+          >
+          <div class="nav-section-title">Planning</div>
+          <a href="budget.html" class="nav-item" data-page="budget.html">
+            <span class="nav-icon"><i class="fa-solid fa-wallet"></i></span
+            >Budget Planner</a
+          >
+          <a href="savings.html" class="nav-item" data-page="savings.html">
+            <span class="nav-icon"><i class="fa-solid fa-piggy-bank"></i></span
+            >Savings Goals</a
+          >
+          <a href="analytics.html" class="nav-item" data-page="analytics.html">
+            <span class="nav-icon"><i class="fa-solid fa-chart-line"></i></span
+            >Analytics</a
+          >
+          <div class="nav-section-title">Account</div>
+          <a href="login.html" class="nav-item"
+            ><span class="nav-icon"
+              ><i class="fa-solid fa-right-from-bracket"></i></span
+            >Logout</a
+          >
+        </nav>
+        <div class="sidebar-footer">
+          <div class="user-avatar-sidebar">
+            <div class="avatar-img" id="sb-user-init">RS</div>
+            <div class="avatar-info">
+              <div class="avatar-name" id="sb-user-name">Rahul Sharma</div>
+              <div class="avatar-email" id="sb-user-email">
+                rahul@example.com
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+      <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+      <main class="main-content">
+        <div class="top-bar">
+          <div>
+            <button class="menu-toggle" id="menu-toggle">
+              <i class="fa-solid fa-bars"></i>
+            </button>
+            <h1
+              class="page-title"
+              style="display: inline-block; margin-left: 12px"
+            >
+              Transactions
+            </h1>
+            <div class="page-subtitle" id="txn-count">Loading...</div>
+          </div>
+          <div class="top-actions">
+            <a href="add-expense.html" class="btn btn-primary btn-sm"
+              ><i class="fa-solid fa-plus"></i> Add New</a
+            >
+          </div>
+        </div>
+
+        <!-- Summary chips -->
+        <div class="summary-chips" id="summary-chips">
+          <div class="sum-chip">
+            <span class="sum-chip-icon">💸</span>
+            <div>
+              <div class="sum-chip-val" id="chip-total">₹0</div>
+              <div class="sum-chip-lbl">Total Spent</div>
+            </div>
+          </div>
+          <div class="sum-chip">
+            <span class="sum-chip-icon">💰</span>
+            <div>
+              <div class="sum-chip-val" id="chip-income">₹0</div>
+              <div class="sum-chip-lbl">Total Income</div>
+            </div>
+          </div>
+          <div class="sum-chip">
+            <span class="sum-chip-icon">📊</span>
+            <div>
+              <div class="sum-chip-val" id="chip-avg">₹0</div>
+              <div class="sum-chip-lbl">Avg/Expense</div>
+            </div>
+          </div>
+          <div class="sum-chip">
+            <span class="sum-chip-icon">🔥</span>
+            <div>
+              <div class="sum-chip-val" id="chip-largest">₹0</div>
+              <div class="sum-chip-lbl">Largest Expense</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-bar">
+          <div class="input-group" style="flex: 2; min-width: 200px">
+            <div style="position: relative">
+              <span
+                class="input-icon"
+                style="top: 50%; bottom: auto; transform: translateY(-50%)"
+                ><i class="fa-solid fa-magnifying-glass"></i
+              ></span>
+              <input
+                type="text"
+                id="filter-search"
+                class="input-field has-icon"
+                placeholder="Search transactions..."
+                oninput="onSearchInput()"
+              />
+            </div>
+          </div>
+          <div class="input-group">
+            <select
+              id="filter-cat"
+              class="input-field"
+              onchange="applyFilters()"
+            >
+              <option value="">All Categories</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <select
+              id="filter-sort"
+              class="input-field"
+              onchange="applyFilters()"
+            >
+              <option value="date-desc">Newest First</option>
+              <option value="date-asc">Oldest First</option>
+              <option value="amt-desc">Highest Amount</option>
+              <option value="amt-asc">Lowest Amount</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="txn-list" id="txn-list"></div>
+      </main>
+    </div>
+
+    <nav class="bottom-nav">
+      <div class="bottom-nav-items">
+        <a href="dashboard.html" class="bottom-nav-item"
+          ><span class="icon"><i class="fa-solid fa-gauge-high"></i></span
+          >Home</a
+        >
+        <a href="transactions.html" class="bottom-nav-item active"
+          ><span class="icon"><i class="fa-solid fa-list-ul"></i></span
+          >History</a
+        >
+        <a href="add-expense.html" class="bottom-nav-add"
+          ><i class="fa-solid fa-plus"></i
+        ></a>
+        <a href="budget.html" class="bottom-nav-item"
+          ><span class="icon"><i class="fa-solid fa-wallet"></i></span>Budget</a
+        >
+        <a href="analytics.html" class="bottom-nav-item"
+          ><span class="icon"><i class="fa-solid fa-chart-pie"></i></span
+          >Analytics</a
+        >
+      </div>
+    </nav>
+
+    <div id="toast-container"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+      initSidebar();
+
+      function initTransactionsPage() {
+        // Populate category filter — clear first to avoid duplicates on re-navigation
+        const catSel = document.getElementById("filter-cat");
+        if (!catSel) return;
+        while (catSel.options.length > 1) catSel.remove(1);
+        Trackflow.categories.forEach((c) => {
+          const opt = document.createElement("option");
+          opt.value = c.id;
+          opt.textContent = c.icon + " " + c.label;
+          catSel.appendChild(opt);
+        });
+        applyFilters();
+      }
+
+      // Expose for the SPA router
+      window.initTransactionsPage = initTransactionsPage;
+      initTransactionsPage();
+
+      function onSearchInput() {
+        // Reset category dropdown to "All Categories" when user types in search
+        document.getElementById("filter-cat").value = "";
+        applyFilters();
+      }
+
+      function applyFilters() {
+        let txns = [...Trackflow.transactions];
+        const search = document
+          .getElementById("filter-search")
+          .value.toLowerCase();
+        const catF = document.getElementById("filter-cat").value;
+        const sort = document.getElementById("filter-sort").value;
+
+        if (search)
+          txns = txns.filter((t) => {
+            const noteMatch = (t.note || "").toLowerCase().includes(search);
+            const cat = getCategoryMeta(t.category);
+            const catMatch =
+              cat && cat.label
+                ? cat.label.toLowerCase().includes(search)
+                : false;
+            return noteMatch || catMatch;
+          });
+        if (catF) txns = txns.filter((t) => t.category === catF);
+
+        if (sort === "date-desc")
+          txns.sort((a, b) => new Date(b.date) - new Date(a.date));
+        if (sort === "date-asc")
+          txns.sort((a, b) => new Date(a.date) - new Date(b.date));
+        if (sort === "amt-desc")
+          txns.sort((a, b) => Number(b.amount) - Number(a.amount));
+        if (sort === "amt-asc")
+          txns.sort((a, b) => Number(a.amount) - Number(b.amount));
+
+        renderList(txns);
+        updateSummary(txns);
+        document.getElementById("txn-count").textContent =
+          `${txns.length} transaction${txns.length !== 1 ? "s" : ""}`;
+      }
+
+      function updateSummary(txns) {
+        const expenses = txns.filter((t) => t.type === "expense");
+        const income = txns.filter((t) => t.type === "income");
+        const tExp = expenses.reduce((s, t) => s + Number(t.amount), 0);
+        const tInc = income.reduce((s, t) => s + Number(t.amount), 0);
+        const avg = expenses.length ? Math.round(tExp / expenses.length) : 0;
+        const max = expenses.length
+          ? Math.max(...expenses.map((t) => Number(t.amount)))
+          : 0;
+
+        document.getElementById("chip-total").textContent = formatINR(tExp);
+        document.getElementById("chip-income").textContent = formatINR(tInc);
+        document.getElementById("chip-avg").textContent = formatINR(avg);
+        document.getElementById("chip-largest").textContent = formatINR(max);
+      }
+
+      function renderList(txns) {
+        const list = document.getElementById("txn-list");
+        if (!txns.length) {
+          list.innerHTML =
+            '<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No transactions found</div><div class="empty-desc">Try adjusting your search or filters.</div></div>';
+          return;
+        }
+        // Group by date
+        const groups = {};
+        txns.forEach((t) => {
+          if (!groups[t.date]) groups[t.date] = [];
+          groups[t.date].push(t);
+        });
+
+        list.innerHTML = "";
+        Object.keys(groups)
+          .sort((a, b) => new Date(b) - new Date(a))
+          .forEach((date) => {
+            const label = document.createElement("div");
+            label.className = "date-group-label";
+            label.textContent = relativeDate(date) + " – " + formatDate(date);
+            list.appendChild(label);
+
+            groups[date].forEach((txn, i) => {
+              const cat = getCategoryMeta(txn.category);
+              const card = document.createElement("div");
+              card.className = "txn-card";
+              card.id = "txn-" + txn.id;
+              card.style.opacity = "0";
+              card.innerHTML = `
+        <div class="txn-emoji">${cat.icon}</div>
+        <div class="txn-body">
+          <div class="txn-name">${txn.note}</div>
+          <div class="txn-meta">
+            <span class="badge badge-purple" style="font-size:.68rem">${cat.label}</span>
+          </div>
+        </div>
+        <div class="txn-right">
+          <div class="txn-amt ${txn.type}">${txn.type === "expense" ? "-" : "+"}${formatINR(txn.amount)}</div>
+          <div class="txn-date-label">${formatDate(txn.date)}</div>
+        </div>
+        <button class="txn-del" onclick="deleteTxn(${txn.id})" title="Delete"><i class="fa-solid fa-trash"></i></button>`;
+              list.appendChild(card);
+              gsap.fromTo(
+                card,
+                { opacity: 0, x: -20 },
+                {
+                  opacity: 1,
+                  x: 0,
+                  duration: 0.4,
+                  delay: i * 0.04,
+                  ease: "power2.out",
+                },
+              );
+            });
+          });
+      }
+
+      function deleteTxn(id) {
+        const card = document.getElementById("txn-" + id);
+        gsap.to(card, {
+          opacity: 0,
+          x: 60,
+          height: 0,
+          marginBottom: 0,
+          paddingTop: 0,
+          paddingBottom: 0,
+          duration: 0.4,
+          ease: "power2.in",
+          onComplete: () => {
+            Trackflow.transactions = Trackflow.transactions.filter(
+              (t) => t.id !== id,
+            );
+            saveTransactions();
+            card.remove();
+            applyFilters();
+            showToast("Transaction deleted", "success");
+          },
+        });
+      }
+    </script>
+    <script src="js/router.js"></script>
+  </body>
+</html>

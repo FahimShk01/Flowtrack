@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Budget Planner – Trackflow</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+      /* ── Monthly budget input ── */
+      .monthly-budget-row {
+        display: flex;
+        gap: 12px;
+        align-items: flex-end;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+      }
+      .monthly-budget-row .input-group {
+        flex: 1;
+        min-width: 200px;
+        margin: 0;
+      }
+
+      /* ── Budget summary strip ── */
+      .budget-summary {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 28px;
+      }
+      .bsm-val {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 1.4rem;
+        font-weight: 700;
+      }
+      .bsm-lbl {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: 4px;
+      }
+
+      /* ── Budget cards grid ── */
+      .budgets-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+      .budget-card {
+        padding: 24px;
+      }
+      .bc-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+      .bc-cat {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+      .bc-cat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+      }
+      .bc-amounts {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        text-align: right;
+      }
+      .bc-amounts strong {
+        color: var(--text-primary);
+        font-size: 1rem;
+      }
+      .bc-over {
+        color: var(--accent-2) !important;
+      }
+
+      .bc-bar-wrap {
+        height: 8px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 10px;
+      }
+      .bc-bar {
+        height: 100%;
+        border-radius: 10px;
+        width: 0%;
+        will-change: width;
+        transition: none;
+      }
+
+      .bc-footer {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+      }
+      .bc-edit-btn {
+        background: none;
+        border: none;
+        color: var(--accent-1);
+        cursor: pointer;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0;
+      }
+      .bc-edit-btn:hover {
+        text-decoration: underline;
+      }
+
+      /* ── Add budget card ── */
+      .add-budget-card {
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        cursor: pointer;
+        border: 2px dashed var(--border);
+        background: transparent;
+        min-height: 160px;
+        border-radius: var(--radius-lg);
+        transition: var(--transition);
+      }
+      .add-budget-card:hover {
+        border-color: var(--accent-1);
+        background: rgba(108, 99, 255, 0.06);
+      }
+
+      @media (max-width: 900px) {
+        .budgets-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 600px) {
+        .budget-summary {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+    </style>
+    <link rel="prefetch" href="dashboard.html" />
+    <link rel="prefetch" href="transactions.html" />
+    <link rel="prefetch" href="add-expense.html" />
+    <link rel="prefetch" href="budget.html" />
+    <link rel="prefetch" href="savings.html" />
+    <link rel="prefetch" href="analytics.html" />
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-icon"><i class="fa-solid fa-chart-pie"></i></div>
+          <span class="brand-name">Trackflow</span>
+        </div>
+        <nav class="sidebar-nav">
+          <div class="nav-section-title">Main</div>
+          <a href="dashboard.html" class="nav-item" data-page="dashboard.html">
+            <span class="nav-icon"><i class="fa-solid fa-gauge-high"></i></span
+            >Dashboard</a
+          >
+          <a
+            href="add-expense.html"
+            class="nav-item"
+            data-page="add-expense.html"
+          >
+            <span class="nav-icon"><i class="fa-solid fa-plus-circle"></i></span
+            >Add Expense</a
+          >
+          <a
+            href="transactions.html"
+            class="nav-item"
+            data-page="transactions.html"
+          >
+            <span class="nav-icon"><i class="fa-solid fa-list-ul"></i></span
+            >Transactions</a
+          >
+          <div class="nav-section-title">Planning</div>
+          <a href="budget.html" class="nav-item" data-page="budget.html">
+            <span class="nav-icon"><i class="fa-solid fa-wallet"></i></span
+            >Budget Planner</a
+          >
+          <a href="savings.html" class="nav-item" data-page="savings.html">
+            <span class="nav-icon"><i class="fa-solid fa-piggy-bank"></i></span
+            >Savings Goals</a
+          >
+          <a href="analytics.html" class="nav-item" data-page="analytics.html">
+            <span class="nav-icon"><i class="fa-solid fa-chart-line"></i></span
+            >Analytics</a
+          >
+          <div class="nav-section-title">Account</div>
+          <a href="login.html" class="nav-item"
+            ><span class="nav-icon"
+              ><i class="fa-solid fa-right-from-bracket"></i></span
+            >Logout</a
+          >
+        </nav>
+        <div class="sidebar-footer">
+          <div class="user-avatar-sidebar">
+            <div class="avatar-img" id="sb-user-init">RS</div>
+            <div class="avatar-info">
+              <div class="avatar-name" id="sb-user-name">Rahul Sharma</div>
+              <div class="avatar-email" id="sb-user-email">
+                rahul@example.com
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+      <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+      <main class="main-content">
+        <div class="top-bar">
+          <div>
+            <button class="menu-toggle" id="menu-toggle">
+              <i class="fa-solid fa-bars"></i>
+            </button>
+            <h1
+              class="page-title"
+              style="display: inline-block; margin-left: 12px"
+            >
+              Budget Planner
+            </h1>
+            <div class="page-subtitle">Track spending against your limits</div>
+          </div>
+          <div class="top-actions">
+            <button class="btn btn-primary btn-sm" onclick="openAddBudget()">
+              <i class="fa-solid fa-plus"></i> New Budget
+            </button>
+          </div>
+        </div>
+
+        <!-- Monthly overall budget -->
+        <div class="monthly-budget-row">
+          <div class="input-group">
+            <label for="monthly-budget-inp">Monthly Budget (₹)</label>
+            <span class="input-icon"><i class="fa-solid fa-wallet"></i></span>
+            <input
+              type="number"
+              id="monthly-budget-inp"
+              class="input-field has-icon"
+              placeholder="e.g. 50000"
+            />
+          </div>
+          <button class="btn btn-outline" onclick="updateMonthlyBudget()">
+            <i class="fa-solid fa-check"></i> Save
+          </button>
+        </div>
+
+        <!-- Summary strip -->
+        <div class="budget-summary">
+          <div class="glass-card" style="padding: 20px; text-align: center">
+            <div class="bsm-val" id="bsm-total" style="color: var(--accent-1)">
+              ₹0
+            </div>
+            <div class="bsm-lbl">Total Budget</div>
+          </div>
+          <div class="glass-card" style="padding: 20px; text-align: center">
+            <div class="bsm-val" id="bsm-spent" style="color: var(--accent-2)">
+              ₹0
+            </div>
+            <div class="bsm-lbl">Total Spent</div>
+          </div>
+          <div class="glass-card" style="padding: 20px; text-align: center">
+            <div class="bsm-val" id="bsm-left" style="color: var(--accent-3)">
+              ₹0
+            </div>
+            <div class="bsm-lbl">Remaining</div>
+          </div>
+        </div>
+
+        <!-- Budget cards -->
+        <div class="budgets-grid" id="budgets-grid"></div>
+      </main>
+    </div>
+
+    <nav class="bottom-nav">
+      <div class="bottom-nav-items">
+        <a href="dashboard.html" class="bottom-nav-item"
+          ><span class="icon"><i class="fa-solid fa-gauge-high"></i></span
+          >Home</a
+        >
+        <a href="transactions.html" class="bottom-nav-item"
+          ><span class="icon"><i class="fa-solid fa-list-ul"></i></span
+          >History</a
+        >
+        <a href="add-expense.html" class="bottom-nav-add"
+          ><i class="fa-solid fa-plus"></i
+        ></a>
+        <a href="budget.html" class="bottom-nav-item active"
+          ><span class="icon"><i class="fa-solid fa-wallet"></i></span>Budget</a
+        >
+        <a href="analytics.html" class="bottom-nav-item"
+          ><span class="icon"><i class="fa-solid fa-chart-pie"></i></span
+          >Analytics</a
+        >
+      </div>
+    </nav>
+
+    <!-- Add/Edit Budget Modal -->
+    <div class="modal-overlay" id="budget-modal">
+      <div class="modal-card">
+        <div class="modal-title" id="bm-title">New Category Budget</div>
+        <div
+          style="
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 24px;
+          "
+        >
+          Set a monthly spending limit for a category.
+        </div>
+        <div class="modal-close" onclick="closeBudgetModal()">
+          <i class="fa-solid fa-xmark"></i>
+        </div>
+        <div class="input-group">
+          <label>Category</label>
+          <select id="bm-cat" class="input-field">
+            <option value="">Select category…</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Monthly Limit (₹)</label>
+          <span class="input-icon"
+            ><i class="fa-solid fa-indian-rupee-sign"></i
+          ></span>
+          <input
+            type="number"
+            id="bm-limit"
+            class="input-field has-icon"
+            placeholder="e.g. 8000"
+          />
+        </div>
+        <button class="btn btn-primary w-full" onclick="saveBudgetModal()">
+          <i class="fa-solid fa-check"></i> Save Budget
+        </button>
+      </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+      initSidebar();
+      let _editBudgetCat = null;
+
+      // ── Monthly budget ────────────────────────────────────────────────────
+      function updateMonthlyBudget() {
+        const inp = document.getElementById("monthly-budget-inp");
+        const val = parseFloat(inp ? inp.value : "") || 0;
+        const key =
+          typeof getUserKey === "function"
+            ? getUserKey("ft_monthly_budget")
+            : "ft_monthly_budget";
+        if (val > 0) {
+          localStorage.setItem(key, val);
+          // Recalculate budgetLeft so dashboard + other pages see the new value
+          if (typeof calculateSummary === "function") calculateSummary();
+          showToast("Monthly budget saved ✅", "success");
+        }
+        renderBudgets();
+      }
+
+      // ── Render all budget cards ──────────────────────────────────────────
+      function renderBudgets() {
+        const grid = document.getElementById("budgets-grid");
+        if (!grid) return;
+        grid.innerHTML = "";
+
+        const key =
+          typeof getUserKey === "function"
+            ? getUserKey("ft_monthly_budget")
+            : "ft_monthly_budget";
+        const monthlyBudget = parseFloat(localStorage.getItem(key)) || 0;
+        const tSpent = Trackflow.budgets.reduce((s, b) => s + b.spent, 0);
+        const tLeft = Math.max(0, monthlyBudget - tSpent);
+
+        const bsmTotal = document.getElementById("bsm-total");
+        const bsmSpent = document.getElementById("bsm-spent");
+        const bsmLeft = document.getElementById("bsm-left");
+        if (bsmTotal)
+          bsmTotal.textContent =
+            monthlyBudget > 0 ? formatINR(monthlyBudget) : "—";
+        if (bsmSpent) bsmSpent.textContent = formatINR(tSpent);
+        if (bsmLeft)
+          bsmLeft.textContent = monthlyBudget > 0 ? formatINR(tLeft) : "—";
+
+        Trackflow.budgets.forEach((b, i) => {
+          const cat = getCategoryMeta(b.category);
+          const pct =
+            b.limit > 0
+              ? Math.min(100, Math.round((b.spent / b.limit) * 100))
+              : 0;
+          const isOver = b.spent > b.limit;
+          const barColor = isOver ? "var(--accent-2)" : cat.color;
+
+          const card = document.createElement("div");
+          card.className = "glass-card budget-card";
+          card.style.opacity = "0";
+          card.innerHTML = `
+            <div class="bc-header">
+              <div class="bc-cat">
+                <div class="bc-cat-icon" style="background:${cat.color}22">${cat.icon}</div>
+                ${cat.label}
+              </div>
+              <div class="bc-amounts ${isOver ? "bc-over" : ""}">
+                <strong>${formatINR(b.spent)}</strong> / ${formatINR(b.limit)}
+              </div>
+            </div>
+            <div class="bc-bar-wrap">
+              <div class="bc-bar" style="background:${barColor}" data-pct="${pct}"></div>
+            </div>
+            <div class="bc-footer">
+              <span>${
+                isOver
+                  ? "⚠️ Over by " + formatINR(b.spent - b.limit)
+                  : formatINR(b.limit - b.spent) + " left"
+              }</span>
+              <button class="bc-edit-btn" onclick="openEditBudget('${b.category}')">
+                Edit Limit
+              </button>
+            </div>`;
+          grid.appendChild(card);
+          gsap.fromTo(
+            card,
+            { opacity: 0, y: 20 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.4,
+              delay: i * 0.06,
+              ease: "power2.out",
+            },
+          );
+        });
+
+        // Animate bars after cards are visible
+        setTimeout(() => {
+          grid.querySelectorAll(".bc-bar[data-pct]").forEach((bar) => {
+            gsap.to(bar, {
+              width: bar.dataset.pct + "%",
+              duration: 0.9,
+              ease: "power2.out",
+              onComplete: () => {
+                bar.style.willChange = "auto";
+              },
+            });
+          });
+        }, 300);
+
+        // Add-budget card
+        const addCard = document.createElement("div");
+        addCard.className = "add-budget-card";
+        addCard.onclick = openAddBudget;
+        addCard.innerHTML = `
+          <div style="width:48px;height:48px;border-radius:50%;background:rgba(108,99,255,0.15);
+            display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:#a89bff">
+            <i class="fa-solid fa-plus"></i>
+          </div>
+          <div style="font-weight:600;font-size:.9rem">Add Category Budget</div>
+          <div style="font-size:.78rem;color:var(--text-muted)">Set a spending limit</div>`;
+        grid.appendChild(addCard);
+      }
+
+      // ── Add / Edit budget modal ──────────────────────────────────────────
+      function _populateBmCat() {
+        const sel = document.getElementById("bm-cat");
+        if (!sel) return;
+        while (sel.options.length > 1) sel.remove(1);
+        Trackflow.categories.forEach((c) => {
+          const opt = document.createElement("option");
+          opt.value = c.id;
+          opt.textContent = c.icon + " " + c.label;
+          sel.appendChild(opt);
+        });
+      }
+      function openAddBudget() {
+        _editBudgetCat = null;
+        _populateBmCat();
+        document.getElementById("bm-title").textContent = "New Category Budget";
+        document.getElementById("bm-cat").value = "";
+        document.getElementById("bm-limit").value = "";
+        document.getElementById("budget-modal").classList.add("active");
+      }
+      function openEditBudget(catId) {
+        _editBudgetCat = catId;
+        _populateBmCat();
+        const b = Trackflow.budgets.find((x) => x.category === catId);
+        document.getElementById("bm-title").textContent = "Edit Budget Limit";
+        document.getElementById("bm-cat").value = catId;
+        document.getElementById("bm-limit").value = b ? b.limit : "";
+        document.getElementById("budget-modal").classList.add("active");
+      }
+      function closeBudgetModal() {
+        document.getElementById("budget-modal").classList.remove("active");
+      }
+      function saveBudgetModal() {
+        const catId = document.getElementById("bm-cat").value;
+        const limit = parseFloat(document.getElementById("bm-limit").value);
+        if (!catId || !limit || limit <= 0) {
+          showToast("Please fill all fields", "error");
+          return;
+        }
+        const existing = Trackflow.budgets.find((b) => b.category === catId);
+        if (existing) {
+          existing.limit = limit;
+        } else {
+          Trackflow.budgets.push({ category: catId, limit, spent: 0 });
+        }
+        saveBudgets();
+        closeBudgetModal();
+        renderBudgets();
+        showToast("Budget saved ✅", "success");
+      }
+
+      // ── Router hook ──────────────────────────────────────────────────────
+      function initBudgetPage() {
+        const key =
+          typeof getUserKey === "function"
+            ? getUserKey("ft_monthly_budget")
+            : "ft_monthly_budget";
+        const saved = localStorage.getItem(key);
+        const inp = document.getElementById("monthly-budget-inp");
+        if (saved && inp) inp.value = saved;
+        renderBudgets();
+      }
+      window.initBudgetPage = initBudgetPage;
+      initBudgetPage();
+
+      // Close modal on outside click
+      document.getElementById("budget-modal").addEventListener("click", (e) => {
+        if (e.target === e.currentTarget) closeBudgetModal();
+      });
+    </script>
+    <script src="js/router.js"></script>
+  </body>
+</html>

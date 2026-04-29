@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard – Trackflow</title>
+    <meta
+      name="description"
+      content="Trackflow Dashboard – your financial overview at a glance."
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+      /* Recent list */
+      .recent-list {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .txn-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 16px;
+        border-radius: var(--radius-md);
+        transition: var(--transition);
+        cursor: default;
+      }
+      .txn-item:hover {
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .txn-emoji {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.06);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+      }
+      .txn-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .txn-name {
+        font-size: 0.9rem;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .txn-cat {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: 2px;
+      }
+      .txn-amount {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 0.95rem;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      .txn-amount.expense {
+        color: var(--accent-2);
+      }
+      .txn-amount.income {
+        color: var(--accent-3);
+      }
+      .txn-date {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        margin-top: 2px;
+        text-align: right;
+      }
+
+      /* Quick actions */
+      .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 28px;
+      }
+      .qa-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        padding: 20px 12px;
+        border-radius: var(--radius-lg);
+        cursor: pointer;
+        transition: var(--transition);
+        text-decoration: none;
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+        font-weight: 600;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+      }
+      .qa-btn:hover {
+        background: var(--bg-card-hover);
+        color: var(--text-primary);
+        transform: translateY(-3px);
+      }
+      .qa-ico {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+      }
+
+      /* Two col bottom */
+      .dash-grid {
+        display: grid;
+        grid-template-columns: 1.4fr 1fr;
+        gap: 20px;
+      }
+      @media (max-width: 1100px) {
+        .dash-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 600px) {
+        .quick-actions {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      /* Budget mini */
+      .budget-mini-item {
+        padding: 14px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .budget-mini-item:last-child {
+        border-bottom: none;
+      }
+      .budget-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .budget-cat-name {
+        font-size: 0.85rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .budget-amounts {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+      }
+      .budget-amounts strong {
+        color: var(--text-primary);
+      }
+
+      /* Insight card */
+      .insight-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .insight-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+      }
+      .insight-ico {
+        font-size: 1.2rem;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+      .insight-txt strong {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 3px;
+      }
+      .insight-txt span {
+        font-size: 0.78rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+      }
+    </style>
+    <link rel="prefetch" href="dashboard.html" />
+    <link rel="prefetch" href="transactions.html" />
+    <link rel="prefetch" href="add-expense.html" />
+    <link rel="prefetch" href="budget.html" />
+    <link rel="prefetch" href="savings.html" />
+    <link rel="prefetch" href="analytics.html" />
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <!-- SIDEBAR -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-icon"><i class="fa-solid fa-chart-pie"></i></div>
+          <span class="brand-name">Trackflow</span>
+        </div>
+        <nav class="sidebar-nav">
+          <div class="nav-section-title">Main</div>
+          <a href="dashboard.html" class="nav-item" data-page="dashboard.html">
+            <span class="nav-icon"><i class="fa-solid fa-gauge-high"></i></span
+            >Dashboard</a
+          >
+          <a
+            href="add-expense.html"
+            class="nav-item"
+            data-page="add-expense.html"
+          >
+            <span class="nav-icon"><i class="fa-solid fa-plus-circle"></i></span
+            >Add Expense</a
+          >
+          <a
+            href="transactions.html"
+            class="nav-item"
+            data-page="transactions.html"
+          >
+            <span class="nav-icon"><i class="fa-solid fa-list-ul"></i></span
+            >Transactions</a
+          >
+          <div class="nav-section-title">Planning</div>
+          <a href="budget.html" class="nav-item" data-page="budget.html">
+            <span class="nav-icon"><i class="fa-solid fa-wallet"></i></span
+            >Budget Planner</a
+          >
+          <a href="savings.html" class="nav-item" data-page="savings.html">
+            <span class="nav-icon"><i class="fa-solid fa-piggy-bank"></i></span
+            >Savings Goals</a
+          >
+          <a href="analytics.html" class="nav-item" data-page="analytics.html">
+            <span class="nav-icon"><i class="fa-solid fa-chart-line"></i></span
+            >Analytics</a
+          >
+          <div class="nav-section-title">Account</div>
+          <a href="login.html" class="nav-item">
+            <span class="nav-icon"
+              ><i class="fa-solid fa-right-from-bracket"></i></span
+            >Logout</a
+          >
+        </nav>
+        <div class="sidebar-footer">
+          <div class="user-avatar-sidebar">
+            <div class="avatar-img" id="sb-user-init">RS</div>
+            <div class="avatar-info">
+              <div class="avatar-name" id="sb-user-name">Rahul Sharma</div>
+              <div class="avatar-email" id="sb-user-email">
+                rahul@example.com
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+      <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+      <!-- MAIN -->
+      <main class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+          <div>
+            <button class="menu-toggle" id="menu-toggle">
+              <i class="fa-solid fa-bars"></i>
+            </button>
+            <h1
+              class="page-title"
+              style="display: inline-block; margin-left: 12px"
+            >
+              Dashboard
+            </h1>
+            <div class="page-subtitle">
+              Good morning! Here's your financial snapshot.
+            </div>
+          </div>
+          <div class="top-actions">
+            <div class="notification-btn">
+              <i class="fa-solid fa-bell"></i><span class="notif-dot"></span>
+            </div>
+            <a href="add-expense.html" class="btn btn-primary btn-sm"
+              ><i class="fa-solid fa-plus"></i> Add Expense</a
+            >
+          </div>
+        </div>
+
+        <!-- STATS CARDS -->
+        <div class="stats-grid" id="stats-grid">
+          <div
+            class="glass-card stat-card purple"
+            style="will-change: transform, opacity; contain: content"
+          >
+            <div class="stat-label">Total Balance</div>
+            <div class="stat-value" id="stat-balance">₹0</div>
+            <div class="stat-change up">
+              <i class="fa-solid fa-arrow-trend-up"></i> +8.2% this month
+            </div>
+            <div class="stat-icon purple">
+              <i class="fa-solid fa-indian-rupee-sign"></i>
+            </div>
+          </div>
+          <div
+            class="glass-card stat-card red"
+            style="will-change: transform, opacity; contain: content"
+          >
+            <div class="stat-label">Monthly Expenses</div>
+            <div class="stat-value" id="stat-expenses">₹0</div>
+            <div class="stat-change down">
+              <i class="fa-solid fa-arrow-trend-down"></i> +3.1% vs last month
+            </div>
+            <div class="stat-icon red">
+              <i class="fa-solid fa-credit-card"></i>
+            </div>
+          </div>
+          <div
+            class="glass-card stat-card green"
+            style="will-change: transform, opacity; contain: content"
+          >
+            <div class="stat-label">Total Savings</div>
+            <div class="stat-value" id="stat-savings">₹0</div>
+            <div class="stat-change up">
+              <i class="fa-solid fa-arrow-trend-up"></i> +12.4% this month
+            </div>
+            <div class="stat-icon green">
+              <i class="fa-solid fa-piggy-bank"></i>
+            </div>
+          </div>
+          <div
+            class="glass-card stat-card gold"
+            style="will-change: transform, opacity; contain: content"
+          >
+            <div class="stat-label">Budget Remaining</div>
+            <div class="stat-value" id="stat-budget">₹0</div>
+            <div class="stat-change up">
+              <i class="fa-solid fa-check"></i> 6 days left
+            </div>
+            <div class="stat-icon gold"><i class="fa-solid fa-wallet"></i></div>
+          </div>
+        </div>
+
+        <!-- QUICK ACTIONS -->
+        <div class="quick-actions" id="quick-actions">
+          <a href="add-expense.html" class="qa-btn">
+            <div
+              class="qa-ico"
+              style="background: rgba(108, 99, 255, 0.2); color: #a89bff"
+            >
+              <i class="fa-solid fa-plus"></i>
+            </div>
+            Add Expense
+          </a>
+          <a href="transactions.html" class="qa-btn">
+            <div
+              class="qa-ico"
+              style="background: rgba(56, 189, 248, 0.15); color: #38bdf8"
+            >
+              <i class="fa-solid fa-list"></i>
+            </div>
+            History
+          </a>
+          <a href="budget.html" class="qa-btn">
+            <div
+              class="qa-ico"
+              style="background: rgba(247, 151, 30, 0.15); color: #f7971e"
+            >
+              <i class="fa-solid fa-wallet"></i>
+            </div>
+            Budgets
+          </a>
+          <a href="savings.html" class="qa-btn">
+            <div
+              class="qa-ico"
+              style="background: rgba(67, 233, 123, 0.15); color: #43e97b"
+            >
+              <i class="fa-solid fa-piggy-bank"></i>
+            </div>
+            Save Goals
+          </a>
+        </div>
+
+        <!-- BOTTOM GRID -->
+        <div class="dash-grid">
+          <!-- Recent transactions -->
+          <div class="glass-card chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Recent Transactions</div>
+                <div class="chart-subtitle">Last 7 days activity</div>
+              </div>
+              <a href="transactions.html" class="btn btn-ghost btn-sm"
+                >View All <i class="fa-solid fa-arrow-right"></i
+              ></a>
+            </div>
+            <div class="recent-list" id="recent-list">
+              <div class="empty-state">
+                <div class="empty-icon">💸</div>
+                <div class="empty-title">Loading...</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right col -->
+          <div style="display: flex; flex-direction: column; gap: 20px">
+            <!-- Budget overview -->
+            <div class="glass-card chart-card">
+              <div class="chart-header">
+                <div>
+                  <div class="chart-title">Budget Overview</div>
+                  <div class="chart-subtitle">April 2026</div>
+                </div>
+                <a href="budget.html" class="btn btn-ghost btn-sm">Details</a>
+              </div>
+              <div id="budget-mini"></div>
+            </div>
+
+            <!-- Savings Goals Overview -->
+            <div class="glass-card chart-card">
+              <div class="chart-header">
+                <div>
+                  <div class="chart-title">Savings Goals Progress</div>
+                  <div class="chart-subtitle">Your top milestones</div>
+                </div>
+                <a href="savings.html" class="btn btn-ghost btn-sm"
+                  >All Goals</a
+                >
+              </div>
+              <div id="goals-mini" class="goals-mini-list">
+                <!-- Rendered by JS -->
+                <div class="empty-state">Loading goals...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- BOTTOM NAV (mobile) -->
+    <nav class="bottom-nav">
+      <div class="bottom-nav-items">
+        <a href="dashboard.html" class="bottom-nav-item active">
+          <span class="icon"><i class="fa-solid fa-gauge-high"></i></span>Home
+        </a>
+        <a href="transactions.html" class="bottom-nav-item">
+          <span class="icon"><i class="fa-solid fa-list-ul"></i></span>History
+        </a>
+        <a href="add-expense.html" class="bottom-nav-add">
+          <i class="fa-solid fa-plus"></i>
+        </a>
+        <a href="budget.html" class="bottom-nav-item">
+          <span class="icon"><i class="fa-solid fa-wallet"></i></span>Budget
+        </a>
+        <a href="analytics.html" class="bottom-nav-item">
+          <span class="icon"><i class="fa-solid fa-chart-pie"></i></span
+          >Analytics
+        </a>
+      </div>
+    </nav>
+
+    <div id="toast-container"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+      gsap.registerPlugin(ScrollTrigger);
+      initSidebar();
+      // pageEntrance() removed — initDashboard handles all entrance animations
+      // to avoid double-animating the same elements (which caused jank).
+
+      function initDashboard() {
+        const isMobile = window.innerWidth < 768;
+
+        // ── Stat cards + quick actions: single batched timeline ──────────────────
+        // Set opacity:0 upfront so elements are invisible before GSAP runs,
+        // preventing a flash of visible → hidden → animated content.
+        gsap.set(["#stats-grid .stat-card", "#quick-actions .qa-btn"], {
+          opacity: 0,
+          y: isMobile ? 8 : 20,
+        });
+
+        const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+        tl.to("#stats-grid .stat-card", {
+          opacity: 1,
+          y: 0,
+          duration: isMobile ? 0.25 : 0.45,
+          stagger: isMobile ? 0.04 : 0.07,
+        }).to(
+          "#quick-actions .qa-btn",
+          {
+            opacity: 1,
+            y: 0,
+            duration: isMobile ? 0.2 : 0.35,
+            stagger: isMobile ? 0.03 : 0.06,
+          },
+          "-=0.2",
+        ); // overlap slightly so it feels continuous
+
+        // ── Counters ──────────────────────────────────────────────────────────────
+        animateCounter(
+          document.getElementById("stat-balance"),
+          Trackflow.summary.balance,
+        );
+        animateCounter(
+          document.getElementById("stat-expenses"),
+          Trackflow.summary.monthExpense,
+        );
+        animateCounter(
+          document.getElementById("stat-savings"),
+          Trackflow.summary.savings,
+        );
+        animateCounter(
+          document.getElementById("stat-budget"),
+          Trackflow.summary.budgetLeft,
+        );
+
+        renderRecentTransactions();
+        renderBudgetMini();
+        renderGoalsMini();
+      }
+
+      // Expose so the SPA router can call window.initDashboardPage() on every navigation
+      window.initDashboardPage = initDashboard;
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initDashboard);
+      } else {
+        initDashboard();
+      }
+
+      // renderRecentTransactions(), renderBudgetMini(), renderGoalsMini()
+      // are defined in app.js so the SPA router can call them from any
+      // entry page — not just when dashboard.html is the first page loaded.
+    </script>
+    <script src="js/router.js"></script>
+  </body>
+</html>

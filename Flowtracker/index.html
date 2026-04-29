@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trackflow – Premium Expense Tracker & Budget Planner</title>
+    <meta
+      name="description"
+      content="Trackflow – The ultimate AI-powered expense tracker and budget planner. Track spending, plan budgets, achieve financial goals."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/landing.css" />
+  </head>
+  <body class="landing-body">
+    <!-- Particle Canvas -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Navbar -->
+    <nav class="lp-nav" id="lp-nav">
+      <div class="lp-nav-inner">
+        <div class="lp-brand">
+          <div class="brand-icon"><i class="fa-solid fa-chart-pie"></i></div>
+          <span class="brand-name">Trackflow</span>
+        </div>
+        <div class="lp-nav-links" id="lp-nav-links">
+          <a href="#features" class="lp-nav-link">Features</a>
+          <a href="#how-it-works" class="lp-nav-link">How It Works</a>
+          <a href="#tagline-section" class="lp-nav-link">Vision</a>
+        </div>
+        <div class="lp-nav-actions">
+          <a href="login.html" class="btn btn-outline btn-sm">Log In</a>
+          <a href="login.html#signup" class="btn btn-primary btn-sm"
+            >Get Started</a
+          >
+        </div>
+        <button class="lp-hamburger" id="lp-hamburger" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Mobile Nav Drawer -->
+    <div class="lp-mobile-nav" id="lp-mobile-nav">
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How It Works</a>
+      <a href="login.html">Login</a>
+      <a href="login.html#signup" class="btn btn-primary w-full text-center"
+        >Get Started Free</a
+      >
+    </div>
+
+    <!-- ===== HERO SECTION ===== -->
+    <section class="hero-section" id="hero">
+      <!-- Parallax layers -->
+      <div class="parallax-layer layer-1" data-parallax="0.3"></div>
+      <div class="parallax-layer layer-2" data-parallax="0.6"></div>
+      <div class="parallax-layer layer-3" data-parallax="0.15"></div>
+
+      <div class="hero-content-wrap">
+        <div class="hero-content" id="hero-content">
+          <div class="hero-badge" id="hero-badge">
+            <span class="badge-dot"></span>
+            <span>₹ India's #1 Expense Tracker</span>
+          </div>
+          <h1 class="hero-headline" id="hero-headline">
+            <span class="line">Take Control of</span>
+            <span class="line gradient-text">Your Finances</span>
+            <span class="line">Like Never Before</span>
+          </h1>
+          <p class="hero-sub" id="hero-sub">
+            Track expenses, plan budgets, and hit your savings goals with
+            Trackflow — the most beautiful finance app built for Indians.
+          </p>
+          <div class="hero-cta" id="hero-cta">
+            <a href="login.html#signup" class="btn btn-primary btn-lg">
+              <i class="fa-solid fa-user-plus"></i> Sign Up Free
+            </a>
+            <a href="login.html" class="btn btn-outline btn-lg">
+              <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In
+            </a>
+          </div>
+        </div>
+
+        <!-- Floating Cards -->
+        <div class="hero-cards" id="hero-cards">
+          <!-- Balance Card -->
+          <div class="floating-card fc-main glass-card" id="fc-main">
+            <div class="fc-header">
+              <span class="fc-label">Total Balance</span>
+              <span class="badge badge-green">↑ 12.4%</span>
+            </div>
+            <div class="fc-value" id="fc-balance">₹2,45,800</div>
+            <div class="fc-chart-mini">
+              <svg viewBox="0 0 120 40" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="sg1" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#6c63ff" stop-opacity="0.4" />
+                    <stop offset="100%" stop-color="#6c63ff" stop-opacity="0" />
+                  </linearGradient>
+                </defs>
+                <path
+                  class="chart-area"
+                  d="M0,35 C10,30 20,20 30,18 C40,16 50,25 60,22 C70,19 80,8 90,6 C100,4 110,10 120,8 L120,40 L0,40 Z"
+                  fill="url(#sg1)"
+                />
+                <path
+                  d="M0,35 C10,30 20,20 30,18 C40,16 50,25 60,22 C70,19 80,8 90,6 C100,4 110,10 120,8"
+                  fill="none"
+                  stroke="#6c63ff"
+                  stroke-width="2"
+                />
+              </svg>
+            </div>
+            <div class="fc-row">
+              <div class="fc-pill green">+₹12,500 this month</div>
+            </div>
+          </div>
+
+          <!-- Expense Card -->
+          <div class="floating-card fc-expense glass-card" id="fc-expense">
+            <div class="fc-row gap-12">
+              <div class="fc-icon red">
+                <i class="fa-solid fa-arrow-trend-up"></i>
+              </div>
+              <div>
+                <div class="fc-label">Monthly Spend</div>
+                <div class="fc-val-sm">₹38,240</div>
+              </div>
+            </div>
+            <div class="mini-bars">
+              <div class="bar" style="height: 60%"></div>
+              <div class="bar" style="height: 80%"></div>
+              <div class="bar" style="height: 50%"></div>
+              <div class="bar" style="height: 90%"></div>
+              <div class="bar" style="height: 70%"></div>
+              <div class="bar" style="height: 40%"></div>
+              <div class="bar active" style="height: 65%"></div>
+            </div>
+          </div>
+
+          <!-- Savings Goal -->
+          <div class="floating-card fc-goal glass-card" id="fc-goal">
+            <div class="fc-label">Savings Goal</div>
+            <div class="fc-row gap-8 mb-8">
+              <span class="goal-icon">🏠</span>
+              <div>
+                <div style="font-size: 0.85rem; font-weight: 600">
+                  New House Fund
+                </div>
+                <div style="font-size: 0.72rem; color: var(--text-muted)">
+                  ₹12L of ₹40L
+                </div>
+              </div>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill purple" style="width: 30%"></div>
+            </div>
+            <div
+              style="
+                font-size: 0.7rem;
+                color: var(--text-muted);
+                margin-top: 6px;
+              "
+            >
+              30% achieved
+            </div>
+          </div>
+
+          <!-- Category Tags -->
+          <div class="floating-card fc-cats glass-card" id="fc-cats">
+            <div class="fc-label mb-8">Top Categories</div>
+            <div class="cat-chips">
+              <span class="cat-chip" style="--c: #6c63ff"
+                >🍔 Food <strong>₹8,200</strong></span
+              >
+              <span class="cat-chip" style="--c: #43e97b"
+                >🚗 Travel <strong>₹4,800</strong></span
+              >
+              <span class="cat-chip" style="--c: #f7971e"
+                >🛒 Shopping <strong>₹6,100</strong></span
+              >
+              <span class="cat-chip" style="--c: #ff6b6b"
+                >💊 Health <strong>₹2,300</strong></span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scroll Indicator -->
+      <div class="scroll-indicator" id="scroll-indicator">
+        <div class="scroll-mouse">
+          <div class="scroll-wheel"></div>
+        </div>
+        <span>Scroll to explore</span>
+      </div>
+    </section>
+
+    <!-- ===== FEATURES SECTION ===== -->
+    <section class="features-section" id="features">
+      <div class="section-container">
+        <div class="section-tag" data-scroll-reveal>POWERFUL FEATURES</div>
+        <h2 class="section-title" data-scroll-reveal>
+          Everything You Need to<br /><span class="gradient-text"
+            >Master Your Money</span
+          >
+        </h2>
+        <p class="section-sub" data-scroll-reveal>
+          Built for modern Indians who want full control over their financial
+          life.
+        </p>
+
+        <div class="features-grid">
+          <div class="feature-card glass-card" data-scroll-reveal>
+            <div
+              class="feat-icon"
+              style="background: rgba(108, 99, 255, 0.2); color: #a89bff"
+            >
+              <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <h3>Real-Time Analytics</h3>
+            <p>
+              Beautiful charts & graphs that update instantly. Understand
+              exactly where your money is going.
+            </p>
+          </div>
+          <div class="feature-card glass-card" data-scroll-reveal>
+            <div
+              class="feat-icon"
+              style="background: rgba(67, 233, 123, 0.15); color: #43e97b"
+            >
+              <i class="fa-solid fa-bullseye"></i>
+            </div>
+            <h3>Smart Budget Planning</h3>
+            <p>
+              Set category-wise budgets and get warnings before you overspend.
+              Stay on track effortlessly.
+            </p>
+          </div>
+          <div class="feature-card glass-card" data-scroll-reveal>
+            <div
+              class="feat-icon"
+              style="background: rgba(247, 151, 30, 0.15); color: #f7971e"
+            >
+              <i class="fa-solid fa-piggy-bank"></i>
+            </div>
+            <h3>Savings Goals</h3>
+            <p>
+              Dream big. Set goals, track contributions, and celebrate
+              milestones with animated rewards.
+            </p>
+          </div>
+          <div class="feature-card glass-card" data-scroll-reveal>
+            <div
+              class="feat-icon"
+              style="background: rgba(56, 189, 248, 0.15); color: #38bdf8"
+            >
+              <i class="fa-solid fa-receipt"></i>
+            </div>
+            <h3>Expense Tracking</h3>
+            <p>
+              Log expenses in seconds. Categories, notes, dates — all organized
+              beautifully for you.
+            </p>
+          </div>
+          <div class="feature-card glass-card" data-scroll-reveal>
+            <div
+              class="feat-icon"
+              style="background: rgba(255, 107, 107, 0.15); color: #ff6b6b"
+            >
+              <i class="fa-solid fa-bell"></i>
+            </div>
+            <h3>Smart Alerts</h3>
+            <p>
+              Get notified when you're nearing budget limits or when unusual
+              spending is detected.
+            </p>
+          </div>
+          <div class="feature-card glass-card" data-scroll-reveal>
+            <div
+              class="feat-icon"
+              style="background: rgba(168, 85, 247, 0.15); color: #a855f7"
+            >
+              <i class="fa-solid fa-mobile-screen"></i>
+            </div>
+            <h3>Mobile First</h3>
+            <p>
+              Fully responsive design with a sleek bottom navigation. Manage
+              finances on the go.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== HOW IT WORKS ===== -->
+    <section class="how-section" id="how-it-works">
+      <div class="section-container">
+        <div class="section-tag" data-scroll-reveal>SIMPLE PROCESS</div>
+        <h2 class="section-title" data-scroll-reveal>
+          Get Started in <span class="gradient-text">3 Easy Steps</span>
+        </h2>
+
+        <div class="steps-row">
+          <div class="step-card" data-scroll-reveal>
+            <div class="step-num">01</div>
+            <div class="step-icon"><i class="fa-solid fa-user-plus"></i></div>
+            <h3>Create Account</h3>
+            <p>
+              Sign up in seconds. No credit card required. Free forever for
+              personal use.
+            </p>
+          </div>
+          <div class="step-connector"></div>
+          <div class="step-card" data-scroll-reveal>
+            <div class="step-num">02</div>
+            <div class="step-icon"><i class="fa-solid fa-plus"></i></div>
+            <h3>Log Expenses</h3>
+            <p>Add expenses with one tap. Choose category, add notes, done!</p>
+          </div>
+          <div class="step-connector"></div>
+          <div class="step-card" data-scroll-reveal>
+            <div class="step-num">03</div>
+            <div class="step-icon"><i class="fa-solid fa-chart-pie"></i></div>
+            <h3>Track & Grow</h3>
+            <p>
+              Watch your analytics, hit goals and build wealth with smart
+              insights.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TAGLINE SECTION ===== -->
+    <section class="tagline-section" id="tagline-section">
+      <div class="section-container">
+        <div class="tagline-banner glass-card" data-scroll-reveal>
+          <h2 class="tagline-text">
+            Master Your Money, <br /><span class="gradient-text"
+              >Master Your Life.</span
+            >
+          </h2>
+          <p class="tagline-subtext">
+            Join thousands of users who have transformed their financial future
+            with Trackflow's intelligent tracking system.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CTA SECTION ===== -->
+    <section class="cta-section" id="cta">
+      <div class="section-container text-center">
+        <div class="cta-card glass-card" data-scroll-reveal>
+          <div class="cta-glow"></div>
+          <div class="section-tag">START TODAY</div>
+          <h2 class="section-title" style="margin-top: 12px">
+            Ready to Transform<br /><span class="gradient-text"
+              >Your Financial Life?</span
+            >
+          </h2>
+          <p class="section-sub">
+            Achieve your financial goals and build wealth with Trackflow's
+            professional tools.
+          </p>
+          <div
+            style="
+              display: flex;
+              gap: 16px;
+              justify-content: center;
+              flex-wrap: wrap;
+              margin-top: 32px;
+            "
+          >
+            <a href="login.html#signup" class="btn btn-primary btn-lg">
+              <i class="fa-solid fa-rocket"></i> Get Started Now
+            </a>
+            <a href="login.html" class="btn btn-outline btn-lg">
+              <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="lp-footer">
+      <div class="lp-footer-inner">
+        <div class="lp-brand" style="margin-bottom: 8px">
+          <div class="brand-icon"><i class="fa-solid fa-chart-pie"></i></div>
+          <span class="brand-name">Trackflow</span>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.82rem">
+          © 2026 Trackflow. Built with ❤️ for a financially empowered India.
+        </p>
+        <div class="footer-links">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="#">Support</a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="js/landing.js"></script>
+  </body>
+</html>

@@ -1,0 +1,1045 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analytics – Trackflow</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+      .analytics-grid-top {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 28px;
+      }
+      .charts-main {
+        display: grid;
+        grid-template-columns: 1.6fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+      .charts-bottom {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+
+      /* Period toggle */
+      .period-toggle {
+        display: flex;
+        gap: 4px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: var(--radius-full);
+        padding: 4px;
+      }
+      .period-btn {
+        padding: 6px 16px;
+        border-radius: var(--radius-full);
+        border: none;
+        background: none;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+      }
+      .period-btn.active {
+        background: rgba(108, 99, 255, 0.3);
+        color: #a89bff;
+      }
+
+      /* Category list */
+      .cat-breakdown {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 8px;
+      }
+      .cat-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .cat-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .cat-row-name {
+        font-size: 0.82rem;
+        flex: 1;
+      }
+      .cat-row-pct {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+      }
+      .cat-row-amt {
+        font-size: 0.82rem;
+        font-weight: 600;
+        font-family: "Space Grotesk", sans-serif;
+      }
+
+      /* Tooltip */
+      .chart-tooltip {
+        position: absolute;
+        background: rgba(20, 21, 40, 0.97);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 14px;
+        pointer-events: none;
+        opacity: 0;
+        font-size: 0.8rem;
+        z-index: 10;
+        box-shadow: var(--shadow-elevated);
+        transition: opacity 0.15s;
+        white-space: nowrap;
+      }
+      .chart-tooltip.visible {
+        opacity: 1;
+      }
+      .ct-label {
+        color: var(--text-muted);
+        margin-bottom: 4px;
+        font-size: 0.72rem;
+      }
+      .ct-val {
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: var(--text-primary);
+      }
+
+      .chart-canvas-wrap {
+        position: relative;
+      }
+
+      /* Insights row */
+      .insight-strip {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+      .ins-card {
+        padding: 20px;
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+      }
+      .ins-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+      }
+      .ins-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+      .ins-sub {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+      }
+
+      @media (max-width: 1100px) {
+        .charts-main {
+          grid-template-columns: 1fr;
+        }
+        .charts-bottom {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 800px) {
+        .analytics-grid-top {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .insight-strip {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 480px) {
+        .analytics-grid-top {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+    </style>
+    <link rel="prefetch" href="dashboard.html" />
+    <link rel="prefetch" href="transactions.html" />
+    <link rel="prefetch" href="add-expense.html" />
+    <link rel="prefetch" href="budget.html" />
+    <link rel="prefetch" href="savings.html" />
+    <link rel="prefetch" href="analytics.html" />
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-icon"><i class="fa-solid fa-chart-pie"></i></div>
+          <span class="brand-name">Trackflow</span>
+        </div>
+        <nav class="sidebar-nav">
+          <div class="nav-section-title">Main</div>
+          <a href="dashboard.html" class="nav-item" data-page="dashboard.html">
+            <span class="nav-icon"><i class="fa-solid fa-gauge-high"></i></span
+            >Dashboard</a
+          >
+          <a
+            href="add-expense.html"
+            class="nav-item"
+            data-page="add-expense.html"
+          >
+            <span class="nav-icon"><i class="fa-solid fa-plus-circle"></i></span
+            >Add Expense</a
+          >
+          <a
+            href="transactions.html"
+            class="nav-item"
+            data-page="transactions.html"
+          >
+            <span class="nav-icon"><i class="fa-solid fa-list-ul"></i></span
+            >Transactions</a
+          >
+          <div class="nav-section-title">Planning</div>
+          <a href="budget.html" class="nav-item" data-page="budget.html">
+            <span class="nav-icon"><i class="fa-solid fa-wallet"></i></span
+            >Budget Planner</a
+          >
+          <a href="savings.html" class="nav-item" data-page="savings.html">
+            <span class="nav-icon"><i class="fa-solid fa-piggy-bank"></i></span
+            >Savings Goals</a
+          >
+          <a href="analytics.html" class="nav-item" data-page="analytics.html">
+            <span class="nav-icon"><i class="fa-solid fa-chart-line"></i></span
+            >Analytics</a
+          >
+          <div class="nav-section-title">Account</div>
+          <a href="login.html" class="nav-item"
+            ><span class="nav-icon"
+              ><i class="fa-solid fa-right-from-bracket"></i></span
+            >Logout</a
+          >
+        </nav>
+        <div class="sidebar-footer">
+          <div class="user-avatar-sidebar">
+            <div class="avatar-img" id="sb-user-init">RS</div>
+            <div class="avatar-info">
+              <div class="avatar-name" id="sb-user-name">Rahul Sharma</div>
+              <div class="avatar-email" id="sb-user-email">
+                rahul@example.com
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+      <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+      <main class="main-content">
+        <div class="top-bar">
+          <div>
+            <button class="menu-toggle" id="menu-toggle">
+              <i class="fa-solid fa-bars"></i>
+            </button>
+            <h1
+              class="page-title"
+              style="display: inline-block; margin-left: 12px"
+            >
+              Analytics
+            </h1>
+            <div class="page-subtitle">Visual breakdown of your finances</div>
+          </div>
+          <div class="top-actions">
+            <div class="period-toggle" id="period-toggle">
+              <button
+                class="period-btn active"
+                data-period="7"
+                onclick="setPeriod(this, 7)"
+              >
+                7D
+              </button>
+              <button
+                class="period-btn"
+                data-period="30"
+                onclick="setPeriod(this, 30)"
+              >
+                30D
+              </button>
+              <button
+                class="period-btn"
+                data-period="90"
+                onclick="setPeriod(this, 90)"
+              >
+                3M
+              </button>
+              <button
+                class="period-btn"
+                data-period="365"
+                onclick="setPeriod(this, 365)"
+              >
+                1Y
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI strip -->
+        <div class="analytics-grid-top" id="kpi-strip">
+          <div class="glass-card stat-card purple">
+            <div class="stat-label">Total Spent</div>
+            <div class="stat-value" id="kpi-spent">₹0</div>
+            <div class="stat-change down">
+              <i class="fa-solid fa-arrow-trend-up"></i> +3.1% vs last period
+            </div>
+            <div class="stat-icon purple">
+              <i class="fa-solid fa-arrow-trend-up"></i>
+            </div>
+          </div>
+          <div class="glass-card stat-card green">
+            <div class="stat-label">Avg Daily Spend</div>
+            <div class="stat-value" id="kpi-avg">₹0</div>
+            <div class="stat-change up">
+              <i class="fa-solid fa-arrow-trend-down"></i> -5.2% vs last period
+            </div>
+            <div class="stat-icon green">
+              <i class="fa-solid fa-calendar-day"></i>
+            </div>
+          </div>
+          <div class="glass-card stat-card red">
+            <div class="stat-label">Biggest Spend</div>
+            <div class="stat-value" id="kpi-max">₹0</div>
+            <div class="stat-change" style="color: var(--text-muted)">
+              Shopping category
+            </div>
+            <div class="stat-icon red"><i class="fa-solid fa-fire"></i></div>
+          </div>
+          <div class="glass-card stat-card gold">
+            <div class="stat-label">Total Income</div>
+            <div class="stat-value" id="kpi-income">₹0</div>
+            <div class="stat-change up">
+              <i class="fa-solid fa-check"></i> Credited this period
+            </div>
+            <div class="stat-icon gold">
+              <i class="fa-solid fa-indian-rupee-sign"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Smart insights strip -->
+        <div class="insight-strip">
+          <div class="glass-card ins-card">
+            <div
+              class="ins-icon"
+              style="background: rgba(108, 99, 255, 0.15); color: #a89bff"
+            >
+              <i class="fa-solid fa-brain"></i>
+            </div>
+            <div>
+              <div class="ins-title">Top Category</div>
+              <div class="ins-sub">
+                Shopping is your #1 expense at ₹9,200 this month.
+              </div>
+            </div>
+          </div>
+          <div class="glass-card ins-card">
+            <div
+              class="ins-icon"
+              style="background: rgba(247, 151, 30, 0.15); color: #f7971e"
+            >
+              <i class="fa-solid fa-calendar-xmark"></i>
+            </div>
+            <div>
+              <div class="ins-title">Weekend Splurge</div>
+              <div class="ins-sub">
+                You spend 2.4× more on weekends. Saturday is the highest.
+              </div>
+            </div>
+          </div>
+          <div class="glass-card ins-card">
+            <div
+              class="ins-icon"
+              style="background: rgba(67, 233, 123, 0.12); color: #43e97b"
+            >
+              <i class="fa-solid fa-arrow-trend-down"></i>
+            </div>
+            <div>
+              <div class="ins-title">Saving Trend</div>
+              <div class="ins-sub">
+                Your food spend decreased 8% compared to last month. Keep it up!
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Line + Donut -->
+        <div class="charts-main">
+          <div class="glass-card chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Monthly Expense Trend</div>
+                <div class="chart-subtitle">Income vs Expenses over time</div>
+              </div>
+              <div style="display: flex; gap: 16px; font-size: 0.75rem">
+                <span style="display: flex; align-items: center; gap: 6px"
+                  ><span
+                    style="
+                      width: 12px;
+                      height: 3px;
+                      background: #6c63ff;
+                      border-radius: 2px;
+                      display: inline-block;
+                    "
+                  ></span
+                  >Expenses</span
+                >
+                <span style="display: flex; align-items: center; gap: 6px"
+                  ><span
+                    style="
+                      width: 12px;
+                      height: 3px;
+                      background: #43e97b;
+                      border-radius: 2px;
+                      display: inline-block;
+                    "
+                  ></span
+                  >Income</span
+                >
+              </div>
+            </div>
+            <div class="chart-canvas-wrap" style="height: 260px">
+              <canvas id="line-chart"></canvas>
+              <div class="chart-tooltip" id="line-tooltip">
+                <div class="ct-label" id="lt-label"></div>
+                <div class="ct-val" id="lt-val"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Category Breakdown</div>
+                <div class="chart-subtitle">April 2026</div>
+              </div>
+            </div>
+            <div
+              class="chart-canvas-wrap"
+              style="height: 200px; display: flex; justify-content: center"
+            >
+              <canvas id="donut-chart" style="max-width: 200px"></canvas>
+            </div>
+            <div class="cat-breakdown" id="cat-breakdown"></div>
+          </div>
+        </div>
+
+        <!-- Bar + Mini line -->
+        <div class="charts-bottom">
+          <div class="glass-card chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Weekly Spending</div>
+                <div class="chart-subtitle">This week's daily breakdown</div>
+              </div>
+            </div>
+            <div class="chart-canvas-wrap" style="height: 220px">
+              <canvas id="bar-chart"></canvas>
+              <div class="chart-tooltip" id="bar-tooltip">
+                <div class="ct-label" id="bt-label"></div>
+                <div class="ct-val" id="bt-val"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Savings Progress</div>
+                <div class="chart-subtitle">Cumulative savings this year</div>
+              </div>
+            </div>
+            <div class="chart-canvas-wrap" style="height: 220px">
+              <canvas id="savings-chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <nav class="bottom-nav">
+      <div class="bottom-nav-items">
+        <a href="dashboard.html" class="bottom-nav-item"
+          ><span class="icon"><i class="fa-solid fa-gauge-high"></i></span
+          >Home</a
+        >
+        <a href="transactions.html" class="bottom-nav-item"
+          ><span class="icon"><i class="fa-solid fa-list-ul"></i></span
+          >History</a
+        >
+        <a href="add-expense.html" class="bottom-nav-add"
+          ><i class="fa-solid fa-plus"></i
+        ></a>
+        <a href="budget.html" class="bottom-nav-item"
+          ><span class="icon"><i class="fa-solid fa-wallet"></i></span>Budget</a
+        >
+        <a href="analytics.html" class="bottom-nav-item active"
+          ><span class="icon"><i class="fa-solid fa-chart-pie"></i></span
+          >Analytics</a
+        >
+      </div>
+    </nav>
+
+    <div id="toast-container"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+      gsap.registerPlugin(ScrollTrigger);
+      initSidebar();
+      pageEntrance();
+
+      // ── Wrap all page init into one function so the router can re-run it ──
+
+      // ---- KPI update ----
+      function updateKPIs(days) {
+        const allTxns = Trackflow.transactions;
+        const expenses = allTxns.filter((t) => t.type === "expense");
+        const income = allTxns.filter((t) => t.type === "income");
+        const tExp = expenses.reduce((s, t) => s + Number(t.amount), 0);
+        const tInc = income.reduce((s, t) => s + Number(t.amount), 0);
+        const avg = days ? Math.round(tExp / days) : 0;
+        const max = expenses.length
+          ? Math.max(...expenses.map((t) => Number(t.amount)))
+          : 0;
+
+        animateCounter(document.getElementById("kpi-spent"), tExp);
+        animateCounter(document.getElementById("kpi-avg"), avg);
+        animateCounter(document.getElementById("kpi-max"), max);
+        animateCounter(document.getElementById("kpi-income"), tInc);
+      }
+
+      // ---- Period toggle ----
+      let currentPeriod = 7;
+      function setPeriod(btn, days) {
+        document
+          .querySelectorAll(".period-btn")
+          .forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentPeriod = days;
+        updateKPIs(days);
+        drawLineChart();
+        drawBarChart();
+      }
+
+      // ============================================================
+      // CHART HELPERS
+      // ============================================================
+      function dpr() {
+        return window.devicePixelRatio || 1;
+      }
+
+      function setupCanvas(id) {
+        const canvas = document.getElementById(id);
+        const wrap = canvas.parentElement;
+        const W = wrap.offsetWidth;
+        const H = wrap.offsetHeight || 220;
+        canvas.width = W * dpr();
+        canvas.height = H * dpr();
+        canvas.style.width = W + "px";
+        canvas.style.height = H + "px";
+        const ctx = canvas.getContext("2d");
+        ctx.scale(dpr(), dpr());
+        return { ctx, W, H };
+      }
+
+      // ---- LINE CHART ----
+      function drawLineChart() {
+        const { ctx, W, H } = setupCanvas("line-chart");
+        const pad = { top: 20, right: 20, bottom: 40, left: 52 };
+        const cW = W - pad.left - pad.right;
+        const cH = H - pad.top - pad.bottom;
+
+        const labels = Trackflow.monthlyTrend.labels;
+        const expenses = Trackflow.monthlyTrend.expenses;
+        const income = Trackflow.monthlyTrend.income;
+        const maxVal = Math.max(...income) * 1.1;
+
+        function xPos(i) {
+          return pad.left + (i / (labels.length - 1)) * cW;
+        }
+        function yPos(v) {
+          return pad.top + cH - (v / maxVal) * cH;
+        }
+
+        ctx.clearRect(0, 0, W, H);
+
+        // Pre-render static grid onto an offscreen canvas once
+        const lineGridCanvas = document.createElement("canvas");
+        lineGridCanvas.width = W * dpr();
+        lineGridCanvas.height = H * dpr();
+        const lgc = lineGridCanvas.getContext("2d");
+        lgc.scale(dpr(), dpr());
+        for (let i = 0; i <= 4; i++) {
+          const y = pad.top + (cH / 4) * i;
+          lgc.save();
+          lgc.strokeStyle = "rgba(255,255,255,0.05)";
+          lgc.lineWidth = 1;
+          lgc.beginPath();
+          lgc.moveTo(pad.left, y);
+          lgc.lineTo(pad.left + cW, y);
+          lgc.stroke();
+          const val = Math.round(maxVal - (maxVal / 4) * i);
+          lgc.fillStyle = "rgba(255,255,255,0.25)";
+          lgc.font = "11px Inter";
+          lgc.textAlign = "right";
+          lgc.fillText(
+            "₹" + (val / 1000).toFixed(0) + "k",
+            pad.left - 8,
+            y + 4,
+          );
+          lgc.restore();
+        }
+        labels.forEach((l, i) => {
+          lgc.save();
+          lgc.fillStyle = "rgba(255,255,255,0.3)";
+          lgc.font = "11px Inter";
+          lgc.textAlign = "center";
+          lgc.fillText(l, xPos(i), H - 8);
+          lgc.restore();
+        });
+
+        function drawLine(data, color, fillColor, animated) {
+          // Area
+          const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + cH);
+          grad.addColorStop(0, fillColor);
+          grad.addColorStop(1, "rgba(0,0,0,0)");
+          ctx.beginPath();
+          data.forEach((v, i) => {
+            const x = xPos(i),
+              y = yPos(v);
+            i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+          });
+          ctx.lineTo(xPos(data.length - 1), pad.top + cH);
+          ctx.lineTo(pad.left, pad.top + cH);
+          ctx.closePath();
+          ctx.fillStyle = grad;
+          ctx.fill();
+
+          // Line
+          ctx.beginPath();
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 2.5;
+          ctx.lineJoin = "round";
+          data.forEach((v, i) => {
+            const x = xPos(i),
+              y = yPos(v);
+            i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+          });
+          ctx.stroke();
+
+          // Dots
+          data.forEach((v, i) => {
+            ctx.beginPath();
+            ctx.arc(xPos(i), yPos(v), 4, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.strokeStyle = "#0a0b14";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          });
+        }
+
+        // Animate draw
+        let progress = { val: 0 };
+        const animData = (data, pct) =>
+          data.map((v, i, a) => {
+            const prev = a[i - 1] || v;
+            return i === 0
+              ? v * pct
+              : prev + (v - prev) * Math.min(pct * data.length - i, 1);
+          });
+
+        gsap.to(progress, {
+          val: 1,
+          duration: 0.6,
+          ease: "power2.out",
+          onUpdate: () => {
+            ctx.clearRect(0, 0, W, H);
+            // Stamp cached grid in one call instead of redrawing every frame
+            ctx.drawImage(lineGridCanvas, 0, 0, W, H);
+            drawLine(income, "#43e97b", "rgba(67,233,123,0.1)");
+            drawLine(expenses, "#6c63ff", "rgba(108,99,255,0.12)");
+          },
+        });
+
+        // Hover tooltip
+        const canvas = document.getElementById("line-chart");
+        canvas.onmousemove = function (e) {
+          const rect = canvas.getBoundingClientRect();
+          const mx = e.clientX - rect.left;
+          let closest = 0,
+            minD = 9999;
+          labels.forEach((_, i) => {
+            const d = Math.abs(mx - xPos(i));
+            if (d < minD) {
+              minD = d;
+              closest = i;
+            }
+          });
+          const tip = document.getElementById("line-tooltip");
+          tip.classList.add("visible");
+          tip.style.left = xPos(closest) + 10 + "px";
+          tip.style.top = yPos(expenses[closest]) - 40 + "px";
+          document.getElementById("lt-label").textContent = labels[closest];
+          document.getElementById("lt-val").innerHTML =
+            `<span style="color:#ff6b6b">Exp: ${formatINR(expenses[closest])}</span><br><span style="color:#43e97b">Inc: ${formatINR(income[closest])}</span>`;
+        };
+        canvas.onmouseleave = () =>
+          document.getElementById("line-tooltip").classList.remove("visible");
+      }
+
+      // ---- DONUT CHART ----
+      function drawDonutChart() {
+        const canvas = document.getElementById("donut-chart");
+        const size = Math.min(canvas.parentElement.offsetWidth, 200);
+        canvas.width = size * dpr();
+        canvas.height = size * dpr();
+        canvas.style.width = size + "px";
+        canvas.style.height = size + "px";
+        const ctx = canvas.getContext("2d");
+        ctx.scale(dpr(), dpr());
+
+        const data = Trackflow.categoryBreakdown.slice(0, 6);
+        const colors = data.map((d) => getCategoryMeta(d.category).color);
+        const total = data.reduce((s, d) => s + d.amount, 0);
+        const cx = size / 2,
+          cy = size / 2,
+          r = size / 2 - 16,
+          ir = r * 0.6;
+        let startAngle = -Math.PI / 2;
+
+        let animPct = { val: 0 };
+        gsap.to(animPct, {
+          val: 1,
+          duration: 0.5,
+          ease: "power2.out",
+          onUpdate: () => {
+            ctx.clearRect(0, 0, size, size);
+            let sa = -Math.PI / 2;
+            data.forEach((d, i) => {
+              const slice = (d.amount / total) * Math.PI * 2 * animPct.val;
+              ctx.beginPath();
+              ctx.moveTo(cx, cy);
+              ctx.arc(cx, cy, r, sa, sa + slice);
+              ctx.closePath();
+              ctx.fillStyle = colors[i];
+              ctx.fill();
+              sa += slice;
+            });
+            // Inner circle
+            ctx.beginPath();
+            ctx.arc(cx, cy, ir, 0, Math.PI * 2);
+            ctx.fillStyle = "#0d0f1e";
+            ctx.fill();
+            // Center text
+            ctx.fillStyle = "rgba(255,255,255,0.8)";
+            ctx.font = `bold ${Math.round(size * 0.1)}px Space Grotesk`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("₹" + Math.round(total / 1000) + "K", cx, cy - 6);
+            ctx.fillStyle = "rgba(255,255,255,0.35)";
+            ctx.font = `${Math.round(size * 0.065)}px Inter`;
+            ctx.fillText("total", cx, cy + size * 0.09);
+          },
+        });
+
+        // Legend
+        const breakdown = document.getElementById("cat-breakdown");
+        breakdown.innerHTML = "";
+        data.forEach((d, i) => {
+          const cat = getCategoryMeta(d.category);
+          const row = document.createElement("div");
+          row.className = "cat-row";
+          row.innerHTML = `
+      <div class="cat-dot" style="background:${colors[i]}"></div>
+      <div class="cat-row-name">${cat.icon} ${cat.label}</div>
+      <div class="cat-row-pct">${d.pct}%</div>
+      <div class="cat-row-amt">${formatINR(d.amount)}</div>`;
+          breakdown.appendChild(row);
+          gsap.fromTo(
+            row,
+            { opacity: 0, x: -12 },
+            {
+              opacity: 1,
+              x: 0,
+              duration: 0.25,
+              delay: i * 0.04,
+              ease: "power2.out",
+            },
+          );
+        });
+      }
+
+      // ---- BAR CHART ----
+      function drawBarChart() {
+        const { ctx, W, H } = setupCanvas("bar-chart");
+        const pad = { top: 16, right: 16, bottom: 36, left: 52 };
+        const cW = W - pad.left - pad.right;
+        const cH = H - pad.top - pad.bottom;
+        const data = Trackflow.weeklySpend.data;
+        const labels = Trackflow.weeklySpend.labels;
+        const maxVal = Math.max(...data) * 1.15;
+        const barW = (cW / data.length) * 0.55;
+        const gap = cW / data.length;
+
+        ctx.clearRect(0, 0, W, H);
+
+        // Pre-render static grid once
+        const barGridCanvas = document.createElement("canvas");
+        barGridCanvas.width = W * dpr();
+        barGridCanvas.height = H * dpr();
+        const bgc = barGridCanvas.getContext("2d");
+        bgc.scale(dpr(), dpr());
+        for (let i = 0; i <= 4; i++) {
+          const y = pad.top + (cH / 4) * i;
+          bgc.save();
+          bgc.strokeStyle = "rgba(255,255,255,0.04)";
+          bgc.lineWidth = 1;
+          bgc.beginPath();
+          bgc.moveTo(pad.left, y);
+          bgc.lineTo(pad.left + cW, y);
+          bgc.stroke();
+          const v = Math.round(maxVal - (maxVal / 4) * i);
+          bgc.fillStyle = "rgba(255,255,255,0.25)";
+          bgc.font = "11px Inter";
+          bgc.textAlign = "right";
+          bgc.fillText("₹" + (v / 1000).toFixed(1) + "k", pad.left - 6, y + 4);
+          bgc.restore();
+        }
+        labels.forEach((l, i) => {
+          bgc.save();
+          bgc.fillStyle = "rgba(255,255,255,0.35)";
+          bgc.font = "11px Inter";
+          bgc.textAlign = "center";
+          bgc.fillText(l, pad.left + gap * i + gap / 2, H - 8);
+          bgc.restore();
+        });
+
+        const maxDataVal = Math.max(...data);
+        // Animate bars
+        let prog = { val: 0 };
+        gsap.to(prog, {
+          val: 1,
+          duration: 0.5,
+          ease: "power2.out",
+          onUpdate: () => {
+            ctx.clearRect(0, 0, W, H);
+            ctx.drawImage(barGridCanvas, 0, 0, W, H);
+
+            data.forEach((v, i) => {
+              const x = pad.left + gap * i + (gap - barW) / 2;
+              const bH = (v / maxVal) * cH * prog.val;
+              const y = pad.top + cH - bH;
+              const grad = ctx.createLinearGradient(0, y, 0, y + bH);
+              const isMax = v === maxDataVal;
+              grad.addColorStop(0, isMax ? "#f7971e" : "#6c63ff");
+              grad.addColorStop(1, isMax ? "#ffd200aa" : "#a855f7aa");
+              ctx.save();
+              ctx.fillStyle = grad;
+              ctx.beginPath();
+              ctx.roundRect(x, y, barW, bH, [6, 6, 0, 0]);
+              ctx.fill();
+              ctx.restore();
+            });
+          },
+        });
+
+        // Hover
+        const canvas = document.getElementById("bar-chart");
+        canvas.onmousemove = function (e) {
+          const rect = canvas.getBoundingClientRect();
+          const mx = e.clientX - rect.left;
+          data.forEach((v, i) => {
+            const x = pad.left + gap * i + (gap - barW) / 2;
+            if (mx >= x && mx <= x + barW) {
+              const tip = document.getElementById("bar-tooltip");
+              tip.classList.add("visible");
+              tip.style.left = x + barW + 8 + "px";
+              tip.style.top = pad.top + cH - (v / maxVal) * cH - 20 + "px";
+              document.getElementById("bt-label").textContent = labels[i];
+              document.getElementById("bt-val").textContent = formatINR(v);
+            }
+          });
+        };
+        canvas.onmouseleave = () =>
+          document.getElementById("bar-tooltip").classList.remove("visible");
+      }
+
+      // ---- SAVINGS LINE ----
+      function drawSavingsChart() {
+        const { ctx, W, H } = setupCanvas("savings-chart");
+        const pad = { top: 16, right: 16, bottom: 36, left: 52 };
+        const cW = W - pad.left - pad.right,
+          cH = H - pad.top - pad.bottom;
+        const labels = ["Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr"];
+        const data = [45000, 62000, 58000, 80000, 95000, 105000, 123000];
+        const maxVal = Math.max(...data) * 1.1;
+        const xPos = (i) => pad.left + (i / (labels.length - 1)) * cW;
+        const yPos = (v) => pad.top + cH - (v / maxVal) * cH;
+
+        ctx.clearRect(0, 0, W, H);
+
+        // Pre-render static grid once
+        const savGridCanvas = document.createElement("canvas");
+        savGridCanvas.width = W * dpr();
+        savGridCanvas.height = H * dpr();
+        const sgc = savGridCanvas.getContext("2d");
+        sgc.scale(dpr(), dpr());
+        for (let i = 0; i <= 3; i++) {
+          const y = pad.top + (cH / 3) * i;
+          sgc.save();
+          sgc.strokeStyle = "rgba(255,255,255,0.04)";
+          sgc.lineWidth = 1;
+          sgc.beginPath();
+          sgc.moveTo(pad.left, y);
+          sgc.lineTo(pad.left + cW, y);
+          sgc.stroke();
+          const v = Math.round(maxVal - (maxVal / 3) * i);
+          sgc.fillStyle = "rgba(255,255,255,0.25)";
+          sgc.font = "11px Inter";
+          sgc.textAlign = "right";
+          sgc.fillText("₹" + (v / 1000).toFixed(0) + "k", pad.left - 6, y + 4);
+          sgc.restore();
+        }
+        labels.forEach((l, i) => {
+          sgc.save();
+          sgc.fillStyle = "rgba(255,255,255,0.3)";
+          sgc.font = "11px Inter";
+          sgc.textAlign = "center";
+          sgc.fillText(l, xPos(i), H - 8);
+          sgc.restore();
+        });
+
+        let p = { val: 0 };
+        gsap.to(p, {
+          val: 1,
+          duration: 0.6,
+          ease: "power2.out",
+          onUpdate: () => {
+            ctx.clearRect(0, 0, W, H);
+            ctx.drawImage(savGridCanvas, 0, 0, W, H);
+
+            const n = Math.floor(p.val * (data.length - 1));
+            const frac = p.val * (data.length - 1) - n;
+            const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + cH);
+            grad.addColorStop(0, "rgba(67,233,123,0.25)");
+            grad.addColorStop(1, "rgba(67,233,123,0)");
+            ctx.beginPath();
+            for (let i = 0; i <= n; i++) {
+              const x = xPos(i),
+                y = yPos(data[i]);
+              i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            }
+            if (n < data.length - 1) {
+              const x = xPos(n) + frac * (xPos(n + 1) - xPos(n)),
+                y = yPos(data[n]) + frac * (yPos(data[n + 1]) - yPos(data[n]));
+              ctx.lineTo(x, y);
+            }
+            ctx.lineTo(
+              n < data.length - 1
+                ? xPos(n) + frac * (xPos(n + 1) - xPos(n))
+                : xPos(n),
+              pad.top + cH,
+            );
+            ctx.lineTo(pad.left, pad.top + cH);
+            ctx.closePath();
+            ctx.fillStyle = grad;
+            ctx.fill();
+            ctx.beginPath();
+            ctx.strokeStyle = "#43e97b";
+            ctx.lineWidth = 2.5;
+            ctx.lineJoin = "round";
+            for (let i = 0; i <= n; i++) {
+              const x = xPos(i),
+                y = yPos(data[i]);
+              i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            }
+            if (n < data.length - 1) {
+              ctx.lineTo(
+                xPos(n) + frac * (xPos(n + 1) - xPos(n)),
+                yPos(data[n]) + frac * (yPos(data[n + 1]) - yPos(data[n])),
+              );
+            }
+            ctx.stroke();
+          },
+        });
+      }
+
+      // ---- Init ----
+      function initAnalyticsPage() {
+        // Animate KPI cards + insights immediately on DOM ready
+        gsap.fromTo(
+          "#kpi-strip .stat-card",
+          { opacity: 0, y: 16 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.3,
+            stagger: 0.05,
+            ease: "power2.out",
+          },
+        );
+        gsap.fromTo(
+          ".ins-card",
+          { opacity: 0, y: 12 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.3,
+            stagger: 0.05,
+            ease: "power2.out",
+          },
+        );
+        updateKPIs(currentPeriod);
+
+        // Draw charts on next frame so canvas elements are in DOM
+        requestAnimationFrame(() => {
+          drawLineChart();
+          drawDonutChart();
+          drawBarChart();
+          drawSavingsChart();
+        });
+      }
+
+      // Expose for the SPA router
+      window.initAnalyticsPage = initAnalyticsPage;
+
+      // Resize listener attached ONCE — use a named function so it won't stack
+      // on repeated router navigations back to this page.
+      function _onAnalyticsResize() {
+        drawLineChart();
+        drawBarChart();
+        drawSavingsChart();
+      }
+      window.removeEventListener("resize", _onAnalyticsResize); // remove any previous
+      window.addEventListener("resize", _onAnalyticsResize);
+
+      initAnalyticsPage();
+    </script>
+    <script src="js/router.js"></script>
+  </body>
+</html>

@@ -1,0 +1,1037 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login – Trackflow</title>
+    <meta
+      name="description"
+      content="Sign in or create your Trackflow account to start tracking expenses."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+      .auth-body {
+        display: flex;
+        min-height: 100vh;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .auth-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        background:
+          radial-gradient(
+            ellipse 70% 60% at 20% 40%,
+            rgba(108, 99, 255, 0.2) 0%,
+            transparent 60%
+          ),
+          radial-gradient(
+            ellipse 50% 50% at 80% 70%,
+            rgba(67, 233, 123, 0.08) 0%,
+            transparent 60%
+          );
+      }
+
+      /* Grid lines */
+      .auth-bg::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+          linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.025) 1px,
+            transparent 1px
+          );
+        background-size: 50px 50px;
+      }
+
+      .auth-wrap {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        max-width: 960px;
+        width: 100%;
+        min-height: 580px;
+        position: relative;
+        z-index: 1;
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        box-shadow: var(--shadow-elevated);
+        border: 1px solid var(--border);
+        opacity: 0;
+      }
+
+      /* Left Panel */
+      .auth-panel-left {
+        background: linear-gradient(
+          145deg,
+          rgba(108, 99, 255, 0.25) 0%,
+          rgba(168, 85, 247, 0.1) 100%
+        );
+        border-right: 1px solid var(--border);
+        padding: 48px 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .auth-panel-left::before {
+        content: "";
+        position: absolute;
+        bottom: -80px;
+        right: -80px;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(
+          circle,
+          rgba(108, 99, 255, 0.2) 0%,
+          transparent 70%
+        );
+      }
+
+      .auth-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 48px;
+      }
+
+      .auth-headline {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 2rem;
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 16px;
+      }
+
+      .auth-desc {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        line-height: 1.7;
+        margin-bottom: 48px;
+      }
+
+      .auth-features {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .auth-feat-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 18px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+      }
+
+      .auth-feat-ico {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+      }
+
+      .auth-feat-txt strong {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 2px;
+      }
+
+      .auth-feat-txt span {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+      }
+
+      /* Right Panel */
+      .auth-panel-right {
+        background: rgba(10, 11, 20, 0.95);
+        padding: 48px 44px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        backdrop-filter: blur(20px);
+      }
+
+      /* Tabs */
+      .auth-tabs {
+        display: flex;
+        gap: 4px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: var(--radius-full);
+        padding: 4px;
+        margin-bottom: 32px;
+      }
+
+      .auth-tab {
+        flex: 1;
+        padding: 10px;
+        text-align: center;
+        border-radius: var(--radius-full);
+        font-size: 0.88rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        color: var(--text-muted);
+        border: none;
+        background: none;
+      }
+
+      .auth-tab.active {
+        background: var(--gradient-primary);
+        color: #fff;
+        box-shadow: none;
+      }
+
+      .auth-form {
+        display: none;
+      }
+
+      .auth-form.active {
+        display: block;
+      }
+
+      .auth-title {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+
+      .auth-subtitle {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-bottom: 28px;
+      }
+
+      /* Google btn */
+      .btn-google {
+        width: 100%;
+        height: 46px;
+        background: #ffffff;
+        border: 1px solid #dadce0;
+        border-radius: 8px;
+        padding: 0 16px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        cursor: pointer;
+        font-family: "Inter", sans-serif;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #3c4043;
+        letter-spacing: 0.01em;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+      }
+
+      .btn-google:hover {
+        background: #f8f9fa;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        transform: translateY(-2px);
+        border-color: #c6c6c6;
+      }
+
+      .btn-google:active {
+        transform: translateY(0);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+      }
+
+      .google-icon {
+        width: 20px;
+        height: 20px;
+        display: block;
+        flex-shrink: 0;
+      }
+
+      .divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+
+      .divider::before,
+      .divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+
+      .divider span {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        white-space: nowrap;
+      }
+
+      .input-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      /* Password eye toggle */
+      .input-pass-wrap {
+        position: relative;
+      }
+
+      .pass-toggle {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 4px;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+      }
+
+      .pass-toggle:hover {
+        color: var(--text-primary);
+      }
+
+      .auth-forgot {
+        float: right;
+        font-size: 0.78rem;
+        color: var(--accent-1);
+        margin-top: -12px;
+        margin-bottom: 20px;
+        cursor: pointer;
+      }
+
+      .auth-forgot:hover {
+        text-decoration: underline;
+      }
+
+      .auth-submit {
+        width: 100%;
+        margin-top: 4px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .auth-submit .btn-ripple {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(0);
+        pointer-events: none;
+      }
+
+      .auth-agree {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-align: center;
+        margin-top: 16px;
+        line-height: 1.6;
+      }
+
+      .auth-agree a {
+        color: var(--accent-1);
+      }
+
+      /* Error state */
+      .input-field.error {
+        border-color: #ff6b6b !important;
+        box-shadow: none !important;
+      }
+
+      .field-error {
+        color: #ff6b6b;
+        font-size: 0.75rem;
+        margin-top: 4px;
+        display: none;
+      }
+
+      .field-error.show {
+        display: block;
+      }
+
+      @media (max-width: 768px) {
+        .auth-wrap {
+          grid-template-columns: 1fr;
+        }
+
+        .auth-panel-left {
+          display: none;
+        }
+
+        .auth-panel-right {
+          padding: 36px 24px;
+        }
+
+        .input-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body class="auth-body">
+    <div class="auth-bg"></div>
+
+    <div class="auth-wrap glass-card" id="auth-wrap">
+      <!-- Left Panel -->
+      <div class="auth-panel-left">
+        <div>
+          <div class="auth-brand">
+            <div class="brand-icon"><i class="fa-solid fa-chart-pie"></i></div>
+            <span class="brand-name">Trackflow</span>
+          </div>
+          <h2 class="auth-headline">
+            Your Money.<br /><span class="gradient-text">Your Control.</span>
+          </h2>
+          <p class="auth-desc">
+            Track, plan and grow your wealth — all in one place with our premium
+            fintech tools.
+          </p>
+          <div class="auth-features">
+            <div class="auth-feat-item">
+              <div
+                class="auth-feat-ico"
+                style="background: rgba(108, 99, 255, 0.2); color: #a89bff"
+              >
+                <i class="fa-solid fa-chart-pie"></i>
+              </div>
+              <div class="auth-feat-txt">
+                <strong>Smart Analytics</strong>
+                <span>Visual charts of every rupee</span>
+              </div>
+            </div>
+            <div class="auth-feat-item">
+              <div
+                class="auth-feat-ico"
+                style="background: rgba(67, 233, 123, 0.15); color: #43e97b"
+              >
+                <i class="fa-solid fa-piggy-bank"></i>
+              </div>
+              <div class="auth-feat-txt">
+                <strong>Savings Goals</strong>
+                <span>Track & celebrate milestones</span>
+              </div>
+            </div>
+            <div class="auth-feat-item">
+              <div
+                class="auth-feat-ico"
+                style="background: rgba(247, 151, 30, 0.15); color: #f7971e"
+              >
+                <i class="fa-solid fa-shield-halved"></i>
+              </div>
+              <div class="auth-feat-txt">
+                <strong>100% Secure</strong>
+                <span>Your data stays private</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          style="font-size: 0.75rem; color: var(--text-muted); margin-top: 32px"
+        >
+          ★★★★★ <strong style="color: var(--text-secondary)">4.9/5</strong> from
+          12,000+ reviews
+        </div>
+      </div>
+
+      <!-- Right Panel -->
+      <div class="auth-panel-right">
+        <div class="auth-tabs">
+          <button
+            class="auth-tab active"
+            id="tab-login"
+            onclick="switchTab('login')"
+          >
+            Log In
+          </button>
+          <button
+            class="auth-tab"
+            id="tab-signup"
+            onclick="switchTab('signup')"
+          >
+            Sign Up
+          </button>
+        </div>
+
+        <!-- Login Form -->
+        <div class="auth-form active" id="form-login">
+          <h3 class="auth-title">Welcome back 👋</h3>
+          <p class="auth-subtitle">Log in to your Trackflow account</p>
+
+          <button
+            class="btn-google"
+            id="google-auth-btn"
+            onclick="triggerGoogleAuth()"
+          >
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
+              class="google-icon"
+              alt="Google"
+            />
+            Continue with Google
+          </button>
+
+          <div class="divider"><span>or continue with email</span></div>
+
+          <div class="input-group">
+            <label for="login-email">Email</label>
+            <span class="input-icon"><i class="fa-solid fa-envelope"></i></span>
+            <input
+              type="email"
+              id="login-email"
+              class="input-field has-icon"
+              placeholder="you@example.com"
+            />
+            <div class="field-error" id="login-email-err">
+              Please enter a valid email.
+            </div>
+          </div>
+          <div class="input-group">
+            <label for="login-pass">Password</label>
+            <div class="input-pass-wrap">
+              <span
+                class="input-icon"
+                style="bottom: 50%; transform: translateY(50%)"
+                ><i class="fa-solid fa-lock"></i
+              ></span>
+              <input
+                type="password"
+                id="login-pass"
+                class="input-field has-icon"
+                placeholder="••••••••"
+              />
+              <button
+                class="pass-toggle"
+                onclick="togglePass('login-pass', this)"
+                type="button"
+              >
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+            <div class="field-error" id="login-pass-err">
+              Password must be at least 6 characters.
+            </div>
+          </div>
+          <div
+            class="auth-forgot"
+            onclick="showToast('Reset link sent to your email!', 'info')"
+          >
+            Forgot password?
+          </div>
+          <button
+            class="btn btn-primary auth-submit"
+            id="login-btn"
+            onclick="handleLogin()"
+          >
+            <i class="fa-solid fa-arrow-right-to-bracket"></i> Log In
+          </button>
+          <p class="auth-agree">
+            Don't have an account?
+            <a onclick="switchTab('signup')" style="cursor: pointer"
+              >Sign up free</a
+            >
+          </p>
+        </div>
+
+        <!-- Signup Form -->
+        <div class="auth-form" id="form-signup">
+          <h3 class="auth-title">Create account ✨</h3>
+          <p class="auth-subtitle">Start your journey to financial freedom</p>
+
+          <button
+            class="btn-google"
+            id="google-auth-btn-signup"
+            onclick="triggerGoogleAuth()"
+          >
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
+              class="google-icon"
+              alt="Google"
+            />
+            Sign up with Google
+          </button>
+
+          <div class="divider"><span>or sign up with email</span></div>
+
+          <div class="input-row">
+            <div class="input-group">
+              <label for="signup-fname">First Name</label>
+              <input
+                type="text"
+                id="signup-fname"
+                class="input-field"
+                placeholder="Rahul"
+              />
+            </div>
+            <div class="input-group">
+              <label for="signup-lname">Last Name</label>
+              <input
+                type="text"
+                id="signup-lname"
+                class="input-field"
+                placeholder="Sharma"
+              />
+            </div>
+          </div>
+          <div class="input-group">
+            <label for="signup-email">Email</label>
+            <span class="input-icon"><i class="fa-solid fa-envelope"></i></span>
+            <input
+              type="email"
+              id="signup-email"
+              class="input-field has-icon"
+              placeholder="rahul@example.com"
+            />
+          </div>
+          <div class="input-group">
+            <label for="signup-pass">Password</label>
+            <div class="input-pass-wrap">
+              <span
+                class="input-icon"
+                style="bottom: 50%; transform: translateY(50%)"
+                ><i class="fa-solid fa-lock"></i
+              ></span>
+              <input
+                type="password"
+                id="signup-pass"
+                class="input-field has-icon"
+                placeholder="Min 8 characters"
+              />
+              <button
+                class="pass-toggle"
+                onclick="togglePass('signup-pass', this)"
+                type="button"
+              >
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+            <div
+              class="pass-strength"
+              id="pass-strength"
+              style="margin-top: 6px; display: none"
+            >
+              <div class="progress-bar" style="height: 4px">
+                <div
+                  class="progress-fill purple"
+                  id="pass-strength-bar"
+                  style="
+                    width: 0%;
+                    transition:
+                      width 0.4s,
+                      background 0.4s;
+                  "
+                ></div>
+              </div>
+              <span
+                id="pass-strength-label"
+                style="
+                  font-size: 0.72rem;
+                  color: var(--text-muted);
+                  margin-top: 4px;
+                  display: block;
+                "
+              ></span>
+            </div>
+          </div>
+          <button
+            class="btn btn-primary auth-submit"
+            id="signup-btn"
+            onclick="handleSignup()"
+          >
+            <i class="fa-solid fa-user-plus"></i> Create Account
+          </button>
+          <p class="auth-agree">
+            By signing up, you agree to our <a href="#">Terms</a> and
+            <a href="#">Privacy Policy</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script
+      src="https://accounts.google.com/gsi/client"
+      async
+      defer
+      onload="initGoogleAuth()"
+    ></script>
+
+    <script>
+      window.addEventListener("load", () => {
+        const isMobile = window.innerWidth < 768;
+        const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+
+        tl.fromTo(
+          "#auth-wrap",
+          { opacity: 0, scale: isMobile ? 1 : 0.98, y: 20 },
+          { opacity: 1, scale: 1, y: 0, duration: 0.6 },
+        );
+
+        if (!isMobile) {
+          tl.fromTo(
+            ".auth-panel-left > *",
+            { opacity: 0, x: -20 },
+            { opacity: 1, x: 0, duration: 0.4, stagger: 0.08 },
+            "-=0.3",
+          );
+        }
+
+        tl.fromTo(
+          ".auth-panel-right > *",
+          { opacity: 0, x: isMobile ? 0 : 20, y: isMobile ? 10 : 0 },
+          { opacity: 1, x: 0, y: 0, duration: 0.4, stagger: 0.06 },
+          "-=0.4",
+        );
+      });
+
+      // Tab switching logic
+      function switchTab(tab) {
+        const tabs = document.querySelectorAll(".auth-tab");
+        const forms = document.querySelectorAll(".auth-form");
+
+        tabs.forEach((t) => t.classList.remove("active"));
+        forms.forEach((f) => f.classList.remove("active"));
+
+        document.getElementById("tab-" + tab).classList.add("active");
+        const targetForm = document.getElementById("form-" + tab);
+        targetForm.classList.add("active");
+
+        // Animation for form switch
+        gsap.fromTo(
+          targetForm,
+          { opacity: 0, y: 10 },
+          { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" },
+        );
+      }
+
+      // Ensure the tabs also work via event listeners if no onclick is present
+      document.querySelectorAll(".auth-tab").forEach((tab) => {
+        if (!tab.onclick) {
+          tab.addEventListener("click", () => {
+            const target = tab.id.replace("tab-", "");
+            switchTab(target);
+          });
+        }
+      });
+
+      // ── Google Auth (oauth2 popup — works in all browsers) ──────────────
+      const GOOGLE_CLIENT_ID =
+        "578609745957-uj87lh282ubgp2r60gj807b4j209mfqq.apps.googleusercontent.com";
+      let googleReady = false;
+      let tokenClient = null;
+
+      function initGoogleAuth() {
+        if (typeof google === "undefined") return;
+
+        // One Tap initialise (handles credential callback if it ever fires)
+        google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: handleCredentialResponse,
+          auto_select: false,
+          cancel_on_tap_outside: true,
+        });
+
+        // OAuth2 token client — opens a real popup, works everywhere
+        tokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: GOOGLE_CLIENT_ID,
+          scope: "openid email profile",
+          callback: handleTokenResponse,
+          error_callback: (err) => {
+            resetGoogleBtns();
+            if (err.type !== "popup_closed") {
+              showToast("Google sign-in failed: " + err.type, "error");
+            }
+          },
+        });
+
+        googleReady = true;
+      }
+
+      function triggerGoogleAuth() {
+        if (!googleReady || typeof google === "undefined") {
+          showToast("Google still loading — please try again", "info");
+          return;
+        }
+        setGoogleBtnsLoading();
+        // requestAccessToken() always opens a proper popup — never blocked
+        tokenClient.requestAccessToken({ prompt: "select_account" });
+      }
+
+      // Called when oauth2 popup returns an access token
+      async function handleTokenResponse(tokenResponse) {
+        if (tokenResponse.error) {
+          resetGoogleBtns();
+          showToast("Google sign-in error: " + tokenResponse.error, "error");
+          return;
+        }
+        try {
+          // Fetch real user info from Google
+          const res = await fetch(
+            "https://www.googleapis.com/oauth2/v3/userinfo",
+            {
+              headers: {
+                Authorization: "Bearer " + tokenResponse.access_token,
+              },
+            },
+          );
+          const userData = await res.json();
+
+          localStorage.setItem("ft_token", tokenResponse.access_token);
+          localStorage.setItem("ft_current_name", userData.name);
+          localStorage.setItem("ft_current_user", userData.email);
+
+          showToast("Welcome, " + userData.name + "! 🎉", "success");
+          setTimeout(() => {
+            window.location.href = "dashboard.html";
+          }, 900);
+        } catch (e) {
+          resetGoogleBtns();
+          showToast("Could not fetch Google profile — try again", "error");
+        }
+      }
+
+      // Fallback: handle credential JWT if One Tap ever fires
+      function handleCredentialResponse(response) {
+        if (!response.credential) return;
+        try {
+          const payload = JSON.parse(
+            decodeURIComponent(
+              atob(
+                response.credential
+                  .split(".")[1]
+                  .replace(/-/g, "+")
+                  .replace(/_/g, "/"),
+              )
+                .split("")
+                .map(
+                  (c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2),
+                )
+                .join(""),
+            ),
+          );
+          localStorage.setItem("ft_token", response.credential);
+          localStorage.setItem("ft_current_name", payload.name);
+          localStorage.setItem("ft_current_user", payload.email);
+          showToast("Welcome, " + payload.name + "! 🎉", "success");
+          setTimeout(() => {
+            window.location.href = "dashboard.html";
+          }, 900);
+        } catch (e) {
+          showToast("Error processing Google login", "error");
+        }
+      }
+
+      function setGoogleBtnsLoading() {
+        ["google-auth-btn", "google-auth-btn-signup"].forEach((id) => {
+          const btn = document.getElementById(id);
+          if (btn) {
+            btn._orig = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<svg class="google-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#4285F4" stroke-width="2.5" stroke-dasharray="40" stroke-dashoffset="40"><animate attributeName="stroke-dashoffset" from="40" to="0" dur="0.6s" fill="freeze"/></circle></svg> Signing in…`;
+          }
+        });
+      }
+
+      function resetGoogleBtns() {
+        ["google-auth-btn", "google-auth-btn-signup"].forEach((id) => {
+          const btn = document.getElementById(id);
+          if (btn && btn._orig) {
+            btn.innerHTML = btn._orig;
+            btn.disabled = false;
+          }
+        });
+      }
+
+      // Retry init if onload fires before script block runs
+      let _gsiRetries = 0;
+      const _gsiPoll = setInterval(() => {
+        if (googleReady) {
+          clearInterval(_gsiPoll);
+          return;
+        }
+        if (typeof google !== "undefined") {
+          initGoogleAuth();
+          clearInterval(_gsiPoll);
+        } else if (++_gsiRetries >= 10) {
+          clearInterval(_gsiPoll);
+        }
+      }, 500);
+
+      async function handleLogin() {
+        const email = document.getElementById("login-email").value;
+        const password = document.getElementById("login-pass").value;
+
+        if (!email || !password) {
+          showToast("Please fill all fields", "error");
+          return;
+        }
+
+        const btn = document.getElementById("login-btn");
+        const orgText = btn.innerHTML;
+        btn.innerHTML =
+          '<i class="fa-solid fa-circle-notch fa-spin"></i> Authenticating...';
+        btn.disabled = true;
+
+        // Mock success for local version
+        setTimeout(() => {
+          localStorage.setItem("ft_token", "mock_token_" + Date.now());
+          localStorage.setItem("ft_current_user", email);
+          localStorage.setItem("ft_current_name", email.split("@")[0]);
+
+          showToast("Logged in successfully!", "success");
+          setTimeout(() => {
+            window.location.href = "dashboard.html";
+          }, 400);
+        }, 600);
+      }
+
+      async function handleSignup() {
+        const fname = document.getElementById("signup-fname").value;
+        const lname = document.getElementById("signup-lname").value || "";
+        const email = document.getElementById("signup-email").value;
+        const password = document.getElementById("signup-pass").value;
+
+        if (!email || !fname || !password) {
+          showToast("Please fill all required fields", "error");
+          return;
+        }
+
+        if (password.length < 6) {
+          showToast("Password must be at least 6 characters", "error");
+          return;
+        }
+
+        const btn = document.getElementById("signup-btn");
+        const orgText = btn.innerHTML;
+        btn.innerHTML =
+          '<i class="fa-solid fa-circle-notch fa-spin"></i> Creating Account...';
+        btn.disabled = true;
+
+        // Mock success for local version
+        setTimeout(() => {
+          const fullName = fname + " " + lname;
+          localStorage.setItem("ft_token", "mock_token_" + Date.now());
+          localStorage.setItem("ft_current_user", email);
+          localStorage.setItem("ft_current_name", fullName);
+
+          showToast("Account created successfully!", "success");
+          setTimeout(() => {
+            window.location.href = "dashboard.html";
+          }, 500);
+        }, 800);
+      }
+
+      // Password strength
+      document
+        .getElementById("signup-pass")
+        .addEventListener("input", function () {
+          const v = this.value;
+          const wrap = document.getElementById("pass-strength");
+          const bar = document.getElementById("pass-strength-bar");
+          const label = document.getElementById("pass-strength-label");
+          if (!v) {
+            wrap.style.display = "none";
+            return;
+          }
+          wrap.style.display = "block";
+          let score = 0;
+          if (v.length >= 8) score++;
+          if (/[A-Z]/.test(v)) score++;
+          if (/[0-9]/.test(v)) score++;
+          if (/[^A-Za-z0-9]/.test(v)) score++;
+          const levels = [
+            { w: "15%", bg: "var(--gradient-danger)", lbl: "Weak" },
+            { w: "40%", bg: "var(--gradient-gold)", lbl: "Fair" },
+            {
+              w: "70%",
+              bg: "linear-gradient(135deg,#38bdf8,#6c63ff)",
+              lbl: "Good",
+            },
+            { w: "100%", bg: "var(--gradient-success)", lbl: "Strong 💪" },
+          ];
+          const l = levels[Math.min(score - 1, 3)];
+          bar.style.width = l.w;
+          bar.style.background = l.bg;
+          label.textContent = l.lbl;
+        });
+
+      function togglePass(id, btn) {
+        const inp = document.getElementById(id);
+        const isPass = inp.type === "password";
+        inp.type = isPass ? "text" : "password";
+        btn.innerHTML = `<i class="fa-solid fa-eye${isPass ? "-slash" : ""}"></i>`;
+      }
+
+      // Check for #signup hash
+      if (window.location.hash === "#signup") switchTab("signup");
+
+      // Toast
+      function showToast(msg, type = "info") {
+        const icons = {
+          success: "fa-circle-check",
+          error: "fa-circle-xmark",
+          info: "fa-circle-info",
+        };
+        const container = document.getElementById("toast-container");
+        if (!container) return;
+        const t = document.createElement("div");
+        t.className = `toast ${type}`;
+        t.innerHTML = `<i class="fa-solid ${icons[type]} toast-icon"></i><div class="toast-body"><div class="toast-title">${msg}</div></div>`;
+        container.appendChild(t);
+        gsap.fromTo(
+          t,
+          { opacity: 0, x: 40 },
+          { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" },
+        );
+        setTimeout(
+          () =>
+            gsap.to(t, {
+              opacity: 0,
+              x: 40,
+              duration: 0.3,
+              onComplete: () => t.remove(),
+            }),
+          3000,
+        );
+      }
+
+      // Input focus animations
+      document.querySelectorAll(".input-field").forEach((inp) => {
+        inp.addEventListener("focus", function () {
+          gsap.to(this, { scale: 1.005, duration: 0.2, ease: "power2.out" });
+        });
+        inp.addEventListener("blur", function () {
+          gsap.to(this, { scale: 1, duration: 0.2 });
+        });
+      });
+    </script>
+  </body>
+</html>
